@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Basic" type="Application" factoryName="Application">
+    <envs>
+      <env name="AUTH_PROFILE" value="basicAuth" />
+      <env name="CONTEXT_PATH" value="/basicAuth" />
+      <env name="PORT" value="8082" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="com.example.test.TestApplication" />
+    <module name="AuthTestProject" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

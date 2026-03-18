@@ -1,0 +1,13 @@
+info:
+  name: BASIC
+  type: folder
+  seq: 1
+
+request:
+  auth:
+    type: basic
+    username: admin
+    password: password123
+  variables:
+    - name: host
+      value: http://localhost:8082/basicAuth

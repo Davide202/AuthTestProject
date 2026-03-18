@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%t] [%X{cid}] %logger{36}:%L - %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <!-- Spring -->
+        <!--    <Logger name="org.springframework" level="INFO"/>-->
+        <!--    <Logger name="org.hibernate.SQL" level="INFO"/>-->
+        <!--    <Logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG"/>-->
+        <Logger name="org.apache.tomcat.util.net.NioEndpoint" level="ERROR"/>
+        <Logger name="org.apache.catalina.session.ManagerBase" level="ERROR"/>
+        <Logger name="com.zaxxer.hikari.pool.HikariPool" level="ERROR"/>
+        <Logger name="org.apache.http.impl.conn.PoolingHttpClientConnectionManager" level="ERROR"/>
+        <Logger name="org.springframework.beans.factory.support" level="ERROR"/>
+        <Logger name="javax.management.mbeanserver" level="ERROR"/>
+        <Logger name="javax.management.misc" level="ERROR"/>
+        <Logger name="org.hibernate.validator.internal.engine.constraintvalidation" level="ERROR"/>
+
+        <!-- Application -->
+        <Logger name="com.example.test" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

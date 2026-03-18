@@ -1,0 +1,155 @@
+# Runs:
+# - PostgreSQL for Keycloak (keycloak-db)
+# - Keycloak (IAM) with realm import and demo users
+# - AuthTestProject backend service (Spring Boot)
+#
+# Keycloak admin console: http://localhost:8081/admin
+# Keycloak realm: finmatica
+# Demo users:
+# - admin / Admin123! (realm role: ADMIN)
+# - user1 / User123! (realm role: USER)
+#
+# pgAdmin: http://localhost:5050
+# Login: admin@test.com / admin
+#
+# IMPORTANT: Credentials below are for local/dev only.
+services:
+
+  api-manager:
+    image: wso2/wso2am:4.3.0
+    container_name: wso2am-semplice
+    ports:
+      - "8280:8280"   # Porta HTTP per il traffico API
+      - "8243:8243"   # Porta HTTPS per il traffico API
+      - "9443:9443"   # Porta per la Console di amministrazione, Publisher e DevPortal
+    environment:
+      - JVM_MEM_OPTS=-Xms1024m -Xmx2048m
+
+  keycloak-db:
+    image: postgres:16
+    container_name: keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    ports:
+      - "5433:5432"
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U keycloak" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.8
+    container_name: keycloak
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      #      KEYCLOAK_ADMIN: kcadmin
+      #      KEYCLOAK_ADMIN_PASSWORD: kcadmin
+      KC_BOOTSTRAP_ADMIN_USERNAME: kcadmin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: kcadmin
+    command:
+      - start-dev
+      - --http-port=8080
+      - --import-realm
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./realm-finmatica.json:/opt/keycloak/data/import/realm-finmatica.json:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:8.14
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@test.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+    ports:
+      - "5050:80"
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+
+  basic-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      no_cache: true
+    container_name: basic-backend
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      PORT: 8082
+      CONTEXT_PATH: /basicAuth
+      AUTH_PROFILE: basicAuth
+      JAVA_OPTS: -Xms256m -Xmx512m
+    ports:
+      - "8082:8082"
+
+  keycloak-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      no_cache: true
+    container_name: keycloak-backend
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      PORT: 8083
+      CONTEXT_PATH: /keycloak
+      AUTH_PROFILE: keycloak
+      JWT_ISSUER_URI: http://localhost:8081/realms/finmatica
+      JWT_JWK_SET_URI: http://localhost:8081/realms/finmatica/protocol/openid-connect/certs
+      KEYCLOAK_CLIENT_ID: authtestproject-api
+      # Keycloak Admin API configuration
+      KEYCLOAK_SERVER_URL: http://localhost:8081
+      KEYCLOAK_REALM: finmatica
+      KEYCLOAK_ADMIN_CLIENT_ID: finmatica-admin
+      KEYCLOAK_ADMIN_CLIENT_SECRET: finmatica-admin-secret-change-in-production
+      JAVA_OPTS: -Xms256m -Xmx512m
+    ports:
+      - "8083:8083"
+
+  wso2-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      no_cache: true
+    container_name: wso2-backend
+    environment:
+      PORT: 8084
+      CONTEXT_PATH: /wso2
+      AUTH_PROFILE: wso2
+      JWT_ISSUER_URI: https://localhost:9443/oauth2/token
+      JWT_JWK_SET_URI: https://localhost:9443/oauth2/jwks
+      JAVA_OPTS: -Xms256m -Xmx512m
+    ports:
+      - "8084:8084"
+    networks:
+      - default
+      - wso2-net
+
+networks:
+  wso2-net:
+    external: true
+    name: wso2-container_default
+
+volumes:
+  keycloak_db_data:

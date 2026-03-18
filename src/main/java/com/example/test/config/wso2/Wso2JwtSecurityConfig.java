@@ -1,0 +1,72 @@
+package com.example.test.config.wso2;
+
+import com.example.test.config.ContextFilter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.SecurityFilterChain;
+
+/**
+ * # L'URL deve puntare all'endpoint di WSO2 che espone le chiavi (solitamente /oauth2/jwks)
+ * spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://<wso2-host>:<port>/oauth2/jwks
+ */
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@Profile("wso2")
+@RequiredArgsConstructor
+public class Wso2JwtSecurityConfig {
+
+    private final ContextFilter tenantFilter;
+
+    @Bean
+    public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .securityMatcher("/api/**") // Protegge le API destinate a WSO2
+                .authorizeHttpRequests(auth ->
+                    auth
+                        .requestMatchers(
+                                "/public/**",
+                                "/actuator/health",
+                                "/actuator/info",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(Customizer.withDefaults()) // Configura la validazione JWT
+                )
+                .addFilterAfter(tenantFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
+
+        ;
+
+        return http.build();
+    }
+
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+
+        // 1. Specifica il nome del claim nel token (WSO2 usa spesso "groups" o "roles")
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("groups");
+
+        // 2. Aggiungi il prefisso "ROLE_" (Spring lo richiede per hasRole)
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
+}

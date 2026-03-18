@@ -1,0 +1,37 @@
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: ${CONTEXT_PATH:/basicAuth}
+spring:
+  #main.allow-bean-definition-overriding: true
+  application:
+    name: test
+  profiles.active: ${AUTH_PROFILE:basicAuth}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8081/realms/finmatica}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8081/realms/finmatica/protocol/openid-connect/certs}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    with-credentials: false
+
+
+finmatica:
+  security:
+    # Client ID used in Keycloak for "resource_access" roles mapping.
+    keycloak-client-id: ${KEYCLOAK_CLIENT_ID:authtestproject-api}
+  # Keycloak Admin API configuration (matches KeycloakAdminConfig.java)
+  keycloak:
+    admin:
+      server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8081}
+      realm: ${KEYCLOAK_REALM:finmatica}
+      client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:finmatica-admin}
+      client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:finmatica-admin-secret-change-in-production}
+  audit:
+    enabled: true

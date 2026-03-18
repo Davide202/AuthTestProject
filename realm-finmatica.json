@@ -1,0 +1,117 @@
+{
+  "realm": "finmatica",
+  "enabled": true,
+  "displayName": "Finmatica",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "resetPasswordAllowed": true,
+  "roles": {
+    "realm": [
+      { "name": "ADMIN", "description": "Platform admin" },
+      { "name": "USER", "description": "Platform user" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "authtestproject-api",
+      "name": "AuthTestProject API",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:3000/*"],
+      "webOrigins": ["http://localhost:3000"],
+      "defaultClientScopes": ["roles", "profile", "email"],
+      "fullScopeAllowed": true,
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "postman",
+      "name": "Postman Client",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "protocol": "openid-connect",
+      "defaultClientScopes": ["roles"]
+    },
+    {
+      "clientId": "finmatica-admin",
+      "name": "Admin Service Account",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "finmatica-admin-secret-change-in-production",
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "fullScopeAllowed": true,
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "false",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "Admin",
+      "email": "admin@test.local",
+      "requiredActions": [],
+      "notBefore": 0,
+      "credentials": [{ "type": "password", "value": "Admin123!", "temporary": false }],
+      "realmRoles": ["ADMIN"]
+    },
+    {
+      "username": "user1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "User",
+      "lastName": "One",
+      "requiredActions": [],
+      "notBefore": 0,
+      "email": "user1@test.local",
+      "credentials": [{ "type": "password", "value": "User123!", "temporary": false }],
+      "realmRoles": ["USER"]
+    },
+    {
+      "username": "service-account-finmatica-admin",
+      "enabled": true,
+      "serviceAccountClientId": "finmatica-admin",
+      "clientRoles": {
+        "realm-management": [
+          "manage-users",
+          "query-users",
+          "view-users"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+name: FINMATICA-DEV
+variables:
+  - name: keycloack_base_url
+    value: http://localhost:8081
+  - name: user_email
+    value: user1@test.local
+  - name: user_password
+    value: User123!
+  - name: admin_email
+    value: admin@test.local
+  - name: admin_password
+    value: Admin123!
+  - name: realm
+    value: finmatica
+  - name: client_id
+    value: authtestproject-api
