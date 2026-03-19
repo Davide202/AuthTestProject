@@ -17,11 +17,18 @@ services:
 
   api-manager:
     image: wso2/wso2am:4.3.0
-    container_name: wso2am-semplice
+    container_name: wso2am
     ports:
-      - "8280:8280"   # Porta HTTP per il traffico API
-      - "8243:8243"   # Porta HTTPS per il traffico API
-      - "9443:9443"   # Porta per la Console di amministrazione, Publisher e DevPortal
+      - "9443:9443"
+      - "8280:8280"
+      - "8243:8243"
+    volumes:
+      # 1. Database persistente (H2)
+      - wso2_db:/home/wso2carbon/wso2am-4.3.0/repository/database
+      # 2. API e Webapp persistenti (Evita l'errore executionplans)
+      - wso2_server:/home/wso2carbon/wso2am-4.3.0/repository/deployment/server
+      # 3. Solo il file di config rimane come cartella locale
+      - ./deployment.toml:/home/wso2carbon/wso2am-4.3.0/repository/conf/deployment.toml:ro
     environment:
       - JVM_MEM_OPTS=-Xms1024m -Xmx2048m
 
@@ -153,3 +160,5 @@ networks:
 
 volumes:
   keycloak_db_data:
+  wso2_db:
+  wso2_server:
