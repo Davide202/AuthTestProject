@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Keycloak" type="Application" factoryName="Application">
     <envs>
-      <env name="AUTH_PROFILE" value="keycloack" />
+      <env name="AUTH_PROFILE" value="keycloak" />
       <env name="CONTEXT_PATH" value="/keycloak" />
       <env name="PORT" value="8083" />
     </envs>

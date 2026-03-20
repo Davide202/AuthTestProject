@@ -13,6 +13,14 @@ spring:
         jwt:
           issuer-uri: ${JWT_ISSUER_URI:http://localhost:8081/realms/finmatica}
           jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8081/realms/finmatica/protocol/openid-connect/certs}
+app:
+  cors:
+    # Se non specificato, permette tutto (ottimo per DEV)
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
+    # Metodi standard permessi di default
+    allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS,PATCH}
+    # Headers permessi di default
+    allowed-headers: ${CORS_ALLOWED_HEADERS:*}
 
 springdoc:
   api-docs:
@@ -20,18 +28,19 @@ springdoc:
   swagger-ui:
     enabled: true
     with-credentials: false
+    oauth:
+      # Prende lo stesso identico valore che usi in keycloak.security.client-id!
+      client-id: ${KEYCLOAK_CLIENT_ID:authtestproject-api}
 
 
-finmatica:
+keycloak:
   security:
     # Client ID used in Keycloak for "resource_access" roles mapping.
-    keycloak-client-id: ${KEYCLOAK_CLIENT_ID:authtestproject-api}
+    client-id: ${KEYCLOAK_CLIENT_ID:authtestproject-api}
   # Keycloak Admin API configuration (matches KeycloakAdminConfig.java)
-  keycloak:
-    admin:
-      server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8081}
-      realm: ${KEYCLOAK_REALM:finmatica}
-      client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:finmatica-admin}
-      client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:finmatica-admin-secret-change-in-production}
-  audit:
-    enabled: true
+  admin:
+    server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8081}
+    realm: ${KEYCLOAK_REALM:finmatica}
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:finmatica-admin}
+    client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:finmatica-admin-secret-change-in-production}
+

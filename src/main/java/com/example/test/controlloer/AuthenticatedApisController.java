@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.ws.rs.Produces;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Produces(MediaType.APPLICATION_JSON_VALUE)
 @RequestMapping("/auth")
 public class AuthenticatedApisController {
 
@@ -27,13 +30,13 @@ public class AuthenticatedApisController {
 
     @GetMapping("/hello")
     @PreAuthorize("hasRole('USER')")
-    public String sayHello() {
-        return "Ciao Utente!";
+    public ResponseEntity<String> sayHello() {
+        return ResponseEntity.ok("Ciao Utente!");
     }
 
     @GetMapping("/secret")
     @PreAuthorize("hasRole('ADMIN')")
-    public String saySecret() {
-        return "Area Riservata agli Admin";
+    public ResponseEntity<String> saySecret() {
+        return ResponseEntity.ok("Area Riservata agli Admin");
     }
 }

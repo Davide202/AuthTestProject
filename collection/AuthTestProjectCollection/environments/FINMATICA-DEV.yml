@@ -1,6 +1,6 @@
 name: FINMATICA-DEV
 variables:
-  - name: keycloack_base_url
+  - name: keycloak_base_url
     value: http://localhost:8081
   - name: user_email
     value: user1@test.local

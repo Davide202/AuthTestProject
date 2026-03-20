@@ -20,8 +20,16 @@
       "protocol": "openid-connect",
       "directAccessGrantsEnabled": true,
       "standardFlowEnabled": true,
-      "redirectUris": ["http://localhost:3000/*"],
-      "webOrigins": ["http://localhost:3000"],
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:8083/*",
+        "https://localhost:9443/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://localhost:8083",
+        "https://localhost:9443"
+      ],
       "defaultClientScopes": ["roles", "profile", "email"],
       "fullScopeAllowed": true,
       "protocolMappers": [

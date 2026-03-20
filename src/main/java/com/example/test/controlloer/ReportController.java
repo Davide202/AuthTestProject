@@ -1,5 +1,8 @@
 package com.example.test.controlloer;
 
+import jakarta.ws.rs.Produces;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -10,18 +13,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
+@Produces(MediaType.APPLICATION_JSON_VALUE)
 @RequestMapping("/api/reports")
 public class ReportController {
 
     @GetMapping("/secret")
     @PreAuthorize("hasRole('WSO2_MANAGER')") // Funziona se il token ha il gruppo "WSO2_MANAGER"
-    public String getSecretData() {
-        return "Dati riservati per i manager di WSO2";
+    public ResponseEntity<String> getSecretData() {
+        return ResponseEntity.ok("Dati riservati per i manager di WSO2");
     }
 
     @GetMapping("/debug")
-    public Map<String, Object> debugToken(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<Map<String, Object>> debugToken(@AuthenticationPrincipal Jwt jwt) {
         // Restituisce tutti i claim contenuti nel token JWT per vedere i nomi corretti
-        return jwt.getClaims();
+        return ResponseEntity.ok(jwt.getClaims());
     }
 }

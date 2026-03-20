@@ -6,7 +6,7 @@ info:
 request:
   auth:
     type: bearer
-    token: "{{admin_token}}"
+    token: "{{user_token}}"
   variables:
     - name: host
       value: http://localhost:8083/keycloak
@@ -32,7 +32,7 @@ request:
 
         // 2. Recupera le variabili (Usa nomi esatti della Collezione)
         const realm = bru.getEnvVar("realm");
-        const baseUrl = bru.getEnvVar("keycloack_base_url");
+        const baseUrl = bru.getEnvVar("keycloak_base_url");
         const adminEmail = bru.getEnvVar("admin_email");
         const adminPassword = bru.getEnvVar("admin_password");
         const adminToken = bru.getVar("admin_token");

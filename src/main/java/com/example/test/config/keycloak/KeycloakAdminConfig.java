@@ -19,16 +19,16 @@ import java.util.concurrent.TimeUnit;
 @Profile("keycloak")
 public class KeycloakAdminConfig {
 
-    @Value("${finmatica.keycloak.admin.server-url}")
+    @Value("${keycloak.admin.server-url}")
     private String serverUrl;
 
-    @Value("${finmatica.keycloak.admin.realm}")
+    @Value("${keycloak.admin.realm}")
     private String realm;
 
-    @Value("${finmatica.keycloak.admin.client-id}")
+    @Value("${keycloak.admin.client-id}")
     private String clientId;
 
-    @Value("${finmatica.keycloak.admin.client-secret}")
+    @Value("${keycloak.admin.client-secret}")
     private String clientSecret;
 
     @Autowired

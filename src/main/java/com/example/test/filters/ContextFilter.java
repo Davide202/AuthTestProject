@@ -1,5 +1,6 @@
-package com.example.test.config;
+package com.example.test.filters;
 
+import com.example.test.config.ContextWrapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.context.annotation.Profile;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,20 +42,25 @@ public class ContextFilter extends OncePerRequestFilter {
 
         SecurityContext securityContext = SecurityContextHolder.getContext();
         if (securityContext != null) {
-            Object principal = securityContext.getAuthentication().getPrincipal();
-            if (principal != null) {
-                if (principal instanceof Jwt jwt) {
-                    log.info("Authentication principal is Jwt {}",principal.toString());
-                    var ga = securityContext.getAuthentication().getAuthorities();
-                    if (ga != null && !ga.isEmpty()){
-                        List<String> roles = ga.stream().map(GrantedAuthority::getAuthority).toList();
-                        ContextWrapper.put("roles", roles);
-                        log.info("Roles in Jwt: {}", roles);
-                    }else{
-                        log.info("No Roles in Jwt");
-                    }
+            Authentication authentication = securityContext.getAuthentication();
+            if (authentication != null){
+
+                Object principal = authentication.getPrincipal();
+                if (principal != null && principal instanceof Jwt jwt) {
+                    log.info("Authentication principal subject is Jwt {}",jwt.getSubject());
+                    log.info("Authentication principal claims is Jwt {}",jwt.getClaims());
                 }
+                var ga = authentication.getAuthorities();
+                if (ga != null && !ga.isEmpty()){
+                    List<String> roles = ga.stream().map(GrantedAuthority::getAuthority).toList();
+                    ContextWrapper.put("roles", roles);
+                    log.info("Roles in Jwt: {}", roles);
+                }else{
+                    log.info("No Roles in Jwt");
+                }
+
             }
+
         }
 
         MDC.put("cid",UUID.randomUUID().toString());

@@ -21,7 +21,7 @@ public class KeycloakAuthoritiesConverter implements Converter<Jwt, Collection<G
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Value("${finmatica.security.keycloak-client-id}")
+    @Value("${keycloak.security.client-id}")
     private String keycloakClientId;
 
     @Override

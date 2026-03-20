@@ -1,11 +1,11 @@
 package com.example.test.config.wso2;
 
-import com.example.test.config.ContextFilter;
+import com.example.test.config.CorsProperties; // Assicurati che il path sia corretto
+import com.example.test.filters.ContextFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,6 +13,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
  * # L'URL deve puntare all'endpoint di WSO2 che espone le chiavi (solitamente /oauth2/jwks)
@@ -27,33 +29,56 @@ public class Wso2JwtSecurityConfig {
 
     private final ContextFilter tenantFilter;
 
+    // 1. INIETTIAMO LE PROPRIETA' CORS (come fatto per Keycloak)
+    private final CorsProperties corsProperties;
+
+    // 2. AGGIUNGIAMO IL BEAN PER I CORS
+    @Bean
+    UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOriginPatterns(corsProperties.getAllowedOrigins());
+        configuration.setAllowedMethods(corsProperties.getAllowedMethods());
+        configuration.setAllowedHeaders(corsProperties.getAllowedHeaders());
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     @Bean
     public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .securityMatcher("/api/**") // Protegge le API destinate a WSO2
+
+                // 3. ABILITIAMO I CORS NELLA FILTER CHAIN
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // --- ATTENZIONE QUI ---
+                // Ho commentato il securityMatcher perché andava in conflitto con Swagger!
+                // .securityMatcher("/api/**")
+
                 .authorizeHttpRequests(auth ->
-                    auth
-                        .requestMatchers(
-                                "/public/**",
-                                "/actuator/health",
-                                "/actuator/info",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                        auth
+                                .requestMatchers(
+                                        "/public/**",
+                                        "/actuator/health",
+                                        "/actuator/info",
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html"
+                                ).permitAll()
+                                .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults()) // Configura la validazione JWT
+                        // 4. FIX: Hai creato il converter in basso, ma non lo stavi usando!
+                        // Usando Customizer.withDefaults() Spring ignorava il tuo converter per WSO2.
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 )
-                .addFilterAfter(tenantFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
-
-        ;
+                .addFilterAfter(tenantFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class);
 
         return http.build();
     }
-
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
