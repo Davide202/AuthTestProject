@@ -1,28 +1,20 @@
 package com.example.test.config.keycloak;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
-
+@Log4j2
 @Component
 @Profile("keycloak")
 public class KeycloakAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @Value("${keycloak.security.client-id}")
-    private String keycloakClientId;
 
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {

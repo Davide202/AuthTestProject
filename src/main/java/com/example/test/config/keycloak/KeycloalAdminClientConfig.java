@@ -2,13 +2,13 @@ package com.example.test.config.keycloak;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -17,22 +17,12 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @Profile("keycloak")
-public class KeycloakAdminConfig {
+@RequiredArgsConstructor
+public class KeycloalAdminClientConfig {
 
-    @Value("${keycloak.admin.server-url}")
-    private String serverUrl;
 
-    @Value("${keycloak.admin.realm}")
-    private String realm;
-
-    @Value("${keycloak.admin.client-id}")
-    private String clientId;
-
-    @Value("${keycloak.admin.client-secret}")
-    private String clientSecret;
-
-    @Autowired
-    ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+    private final KeycloakAdminProperties properties;
 
     @Bean
     public Keycloak keycloakAdminClient() {
@@ -48,11 +38,11 @@ public class KeycloakAdminConfig {
         jacksonProvider.setMapper(objectMapper);
 
         return KeycloakBuilder.builder()
-                .serverUrl(serverUrl)
-                .realm(realm)
+                .serverUrl(properties.getServerUrl())
+                .realm(properties.getRealm())
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)//only password and client_credentials are supported
-                .clientId(clientId)
-                .clientSecret(clientSecret)
+                .clientId(properties.getClientId())
+                .clientSecret(properties.getClientSecret())
                 .resteasyClient(
                         ResteasyClientBuilder.newBuilder()
                                 .register(jacksonProvider,100)
@@ -60,5 +50,4 @@ public class KeycloakAdminConfig {
                                 .build())
                 .build();
     }
-
 }

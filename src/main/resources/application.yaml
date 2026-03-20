@@ -2,6 +2,7 @@ server:
   port: ${PORT:8080}
   servlet:
     context-path: ${CONTEXT_PATH:/basicAuth}
+
 spring:
   #main.allow-bean-definition-overriding: true
   application:
@@ -21,6 +22,10 @@ app:
     allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS,PATCH}
     # Headers permessi di default
     allowed-headers: ${CORS_ALLOWED_HEADERS:*}
+  security:
+    basic:
+      username: admin
+      password: password123
 
 springdoc:
   api-docs:
@@ -30,17 +35,15 @@ springdoc:
     with-credentials: false
     oauth:
       # Prende lo stesso identico valore che usi in keycloak.security.client-id!
-      client-id: ${KEYCLOAK_CLIENT_ID:authtestproject-api}
+      client-id: ${CLIENT_ID:authtestproject-api}
+      token-url: ${TOKEN_URL:http://localhost:8081}
 
 
 keycloak:
-  security:
-    # Client ID used in Keycloak for "resource_access" roles mapping.
-    client-id: ${KEYCLOAK_CLIENT_ID:authtestproject-api}
   # Keycloak Admin API configuration (matches KeycloakAdminConfig.java)
   admin:
-    server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8081}
-    realm: ${KEYCLOAK_REALM:finmatica}
+    server-url: ${KEYCLOAK_ADMIN_SERVER_URL:http://localhost:8081}
+    realm: ${KEYCLOAK_ADMIN_REALM:finmatica}
     client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:finmatica-admin}
     client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:finmatica-admin-secret-change-in-production}
 

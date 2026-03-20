@@ -24,8 +24,8 @@ services:
       - "8243:8243"
     volumes:
       # Volumi mappati localmente per permettere il versionamento
-      - ./wso2_db:/home/wso2carbon/wso2am-4.3.0/repository/database
-      - ./wso2_server:/home/wso2carbon/wso2am-4.3.0/repository/deployment/server
+      - wso2_db:/home/wso2carbon/wso2am-4.3.0/repository/database
+      - wso2_server:/home/wso2carbon/wso2am-4.3.0/repository/deployment/server
       - ./deployment.toml:/home/wso2carbon/wso2am-4.3.0/repository/conf/deployment.toml:ro
     environment:
       - JVM_MEM_OPTS=-Xms1024m -Xmx2048m
@@ -69,7 +69,7 @@ services:
       - --http-port=8081
       - --import-realm
       - --hostname-strict=false
-      - --hostname-strict-https=false
+      # - --hostname-strict-https=false
     ports:
       - "8081:8081"
     volumes:
@@ -109,6 +109,8 @@ services:
       CONTEXT_PATH: /basicAuth
       AUTH_PROFILE: basicAuth
       JAVA_OPTS: -Xms256m -Xmx512m
+      APP_SECURITY_BASIC_USERNAME: myCustomAdmin
+      APP_SECURITY_BASIC_PASSWORD: MySuperSecretPassword!
     ports:
       - "8082:8082"
 
@@ -126,13 +128,14 @@ services:
       CONTEXT_PATH: /keycloak
       AUTH_PROFILE: keycloak
       # Comunicazione interna usando hostname 'keycloak' e porta '8081'
-      JWT_ISSUER_URI: http://keycloak:8081/realms/finmatica
+      JWT_ISSUER_URI: http://localhost:8081/realms/finmatica
       JWT_JWK_SET_URI: http://keycloak:8081/realms/finmatica/protocol/openid-connect/certs
-      KEYCLOAK_SERVER_URL: http://keycloak:8081
-      KEYCLOAK_REALM: finmatica
-      KEYCLOAK_CLIENT_ID: authtestproject-api
-      KEYCLOAK_ADMIN_CLIENT_ID: finmatica-admin
-      KEYCLOAK_ADMIN_CLIENT_SECRET: finmatica-admin-secret-change-in-production
+      KEYCLOAK_ADMIN_SERVER_URL: http://keycloak:8081
+      KEYCLOAK_ADMIN_REALM: finmatica
+      KEYCLOAK_ADMIN_CLIENT_ID: authtestproject-api
+      KEYCLOAK_ADMIN_ADMIN_CLIENT_ID: finmatica-admin
+      KEYCLOAK_ADMIN_ADMIN_CLIENT_SECRET: finmatica-admin-secret-change-in-production
+      TOKEN_URL: http://localhost:8081
       JAVA_OPTS: -Xms256m -Xmx512m
     ports:
       - "8083:8083"
@@ -150,6 +153,7 @@ services:
       # Comunicazione interna usando hostname 'api-manager' e porta '9443'
       JWT_ISSUER_URI: https://api-manager:9443/oauth2/token
       JWT_JWK_SET_URI: https://api-manager:9443/oauth2/jwks
+      TOKEN_URL: https://localhost:9443
       JAVA_OPTS: -Xms256m -Xmx512m
     ports:
       - "8084:8084"
@@ -165,3 +169,5 @@ networks:
 volumes:
   # Solo il DB di Keycloak rimane gestito da Docker
   keycloak_db_data:
+  wso2_db:
+  wso2_server:

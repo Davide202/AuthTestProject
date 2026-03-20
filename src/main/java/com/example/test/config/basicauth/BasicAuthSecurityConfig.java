@@ -1,12 +1,13 @@
 package com.example.test.config.basicauth;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,9 +19,15 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-//@EnableMethodSecurity
+@EnableMethodSecurity
 @Profile("basicAuth") //java -jar app.jar --spring.profiles.active=basicAuth
-public class SecurityConfigBasicAuth {
+public class BasicAuthSecurityConfig {
+
+    @Value("${app.security.basic.username:admin}")
+    private String basicUsername;
+
+    @Value("${app.security.basic.password:password123}")
+    private String basicPassword;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,21 +47,17 @@ public class SecurityConfigBasicAuth {
 
         return http.build();
     }
-
-
-
     @Bean
     public UserDetailsService userDetailsService() {
-        // Configurazione di un utente in memoria per test
+        // 2. USO DELLE VARIABILI INIETTATE PER CREARE L'UTENTE
         UserDetails user = User.builder()
-                .username("admin")
-                .password(passwordEncoder().encode("password123"))
+                .username(basicUsername)
+                .password(passwordEncoder().encode(basicPassword))
                 .roles("ADMIN")
                 .build();
 
         return new InMemoryUserDetailsManager(user);
     }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Profile;
 public class KeycloakOpenApiConfig {
 
 
-    @Value("${keycloak.admin.server-url}")
+    @Value("${springdoc.swagger-ui.oauth.token-url}")
     private String serverUrl;
 
     @Value("${keycloak.admin.realm}")
@@ -33,13 +33,20 @@ public class KeycloakOpenApiConfig {
         return new OpenAPI()
                 .info(new Info().title("Finmatica API").version("1.0").description("API protette da Keycloak"))
                 .addSecurityItem(new SecurityRequirement().addList(OAUTH_SCHEME_NAME))
-                .components(new Components()
-                        .addSecuritySchemes(OAUTH_SCHEME_NAME, new SecurityScheme()
-                                .name(OAUTH_SCHEME_NAME)
-                                .type(SecurityScheme.Type.OAUTH2)
-                                .flows(new OAuthFlows()
-                                        .password(new OAuthFlow()
-                                                .tokenUrl(tokenUrl)
-                                        ))));
+                .components(
+                        new Components()
+                                .addSecuritySchemes(
+                                        OAUTH_SCHEME_NAME,
+                                        new SecurityScheme()
+                                                .name(OAUTH_SCHEME_NAME)
+                                                .type(SecurityScheme.Type.OAUTH2)
+                                                .flows(
+                                                        new OAuthFlows()
+                                                                .password(
+                                                                        new OAuthFlow().tokenUrl(tokenUrl)
+                                                                )
+                                                )
+                                )
+                );
     }
 }

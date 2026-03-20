@@ -40,14 +40,20 @@ public class KeycloakSecurityConfig {
 
 
     @Bean
-    public JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuerUri) {
-        String jwkSetUri = issuerUri.endsWith("/")
-                ? issuerUri + "protocol/openid-connect/certs"
-                : issuerUri + "/protocol/openid-connect/certs";
+    public JwtDecoder jwtDecoder(
+            // 1. URL Interno per scaricare le chiavi (jwkSetUri)
+            @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkSetUri,
+            // 2. URL Esterno per validare l'Issuer (issuerUri)
+            @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuerUri
+    ) {
+//        String jwkSetUri = issuerUri.endsWith("/")
+//                ? issuerUri + "protocol/openid-connect/certs"
+//                : issuerUri + "/protocol/openid-connect/certs";
 
+        // Spring scaricherà le chiavi in modo invisibile contattando il container "keycloak"
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
 
-        // Creiamo un validatore delegato
+        // Spring validerà che il token sia stato staccato da "localhost" (il browser)
         OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);
 
         // Se vuoi essere ancora più permissivo (es. ignorare completamente l'issuer in dev):
