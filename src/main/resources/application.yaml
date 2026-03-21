@@ -14,6 +14,17 @@ spring:
         jwt:
           issuer-uri: ${JWT_ISSUER_URI:http://localhost:8081/realms/finmatica}
           jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8081/realms/finmatica/protocol/openid-connect/certs}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    with-credentials: false
+    oauth:
+      client-id: ${CLIENT_ID:authtestproject-api}
+      token-url: ${TOKEN_URL:http://localhost:8081}
+
 app:
   cors:
     # Se non specificato, permette tutto (ottimo per DEV)
@@ -26,22 +37,7 @@ app:
     basic:
       username: admin
       password: password123
-
-springdoc:
-  api-docs:
-    enabled: true
-  swagger-ui:
-    enabled: true
-    with-credentials: false
-    oauth:
-      # Prende lo stesso identico valore che usi in keycloak.security.client-id!
-      client-id: ${CLIENT_ID:authtestproject-api}
-      token-url: ${TOKEN_URL:http://localhost:8081}
-
-
-keycloak:
-  # Keycloak Admin API configuration (matches KeycloakAdminConfig.java)
-  admin:
+  keycloak-admin:
     server-url: ${KEYCLOAK_ADMIN_SERVER_URL:http://localhost:8081}
     realm: ${KEYCLOAK_ADMIN_REALM:finmatica}
     client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:finmatica-admin}

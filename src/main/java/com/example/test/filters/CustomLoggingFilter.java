@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -26,11 +25,9 @@ public class CustomLoggingFilter implements Filter {
 
             logRequest(httpRequest);
 
-            ResponseWrapper responseWrapper = new ResponseWrapper(httpResponse);
+            chain.doFilter(request, response);
 
-            chain.doFilter(request, responseWrapper);
-
-            logResponse(httpRequest, responseWrapper);
+            logResponse(httpRequest, httpResponse);
         } else {
             chain.doFilter(request, response);
         }
@@ -40,19 +37,19 @@ public class CustomLoggingFilter implements Filter {
     private void logRequest(HttpServletRequest request) {
         if (request.getRequestURI().contains("swagger")) return;
         log.info("Incoming Request: [{}] {}", request.getMethod(), request.getRequestURI());
-        request.getHeaderNames().asIterator().forEachRemaining(header ->
-                log.info("Header: {} = {}", header, request.getHeader(header))
-        );
+//        request.getHeaderNames().asIterator().forEachRemaining(header ->
+//                log.info("Header: {} = {}", header, request.getHeader(header))
+//        );
     }
 
     private void logResponse(
             HttpServletRequest request,
-            ResponseWrapper responseWrapper
+            HttpServletResponse response
     ) throws IOException {
         if (request.getRequestURI().contains("swagger")) return;
         log.info("Outgoing Response for [{}] {}: Status = {}",
-                request.getMethod(), request.getRequestURI(), responseWrapper.getStatus());
-        log.info("Response Body: {}", responseWrapper.getBodyAsString());
+                request.getMethod(), request.getRequestURI(), response.getStatus());
+
     }
 
     public static class ResponseWrapper extends HttpServletResponseWrapper {

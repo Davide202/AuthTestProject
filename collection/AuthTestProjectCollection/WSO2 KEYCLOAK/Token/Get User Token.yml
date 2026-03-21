@@ -1,0 +1,62 @@
+info:
+  name: Get User Token
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{keycloak_base_url}}/realms/{{realm}}/protocol/openid-connect/token"
+  body:
+    type: form-urlencoded
+    data:
+      - name: client_id
+        value: "{{client_id}}"
+      - name: username
+        value: "{{user_email}}"
+      - name: password
+        value: "{{user_password}}"
+      - name: grant_type
+        value: password
+      - name: scope
+        value: openid profile email
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        // 1. Save Access Token
+        if (body.access_token) {
+            bru.setVar("user_token", body.access_token);
+        }
+
+        // 2. Save ID Token
+        if (body.id_token) {
+            bru.setVar("user_id_token", body.id_token);
+            
+            try {
+                const parts = body.id_token.split('.');
+                if (parts.length > 1) {
+                    let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    const pad = base64.length % 4;
+                    if (pad) base64 += '='.repeat(4 - pad);
+                    
+                    const payload = JSON.parse(atob(base64));
+                    
+                    if (payload.sub) {
+                        bru.setVar("user_kc_user_id", payload.sub);
+                        // Also set user_uuid if needed for other endpoints
+                        // bru.setVar("user_uuid", payload.sub); 
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing JWT:", e);
+            }
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

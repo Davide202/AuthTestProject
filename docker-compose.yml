@@ -132,9 +132,9 @@ services:
       JWT_JWK_SET_URI: http://keycloak:8081/realms/finmatica/protocol/openid-connect/certs
       KEYCLOAK_ADMIN_SERVER_URL: http://keycloak:8081
       KEYCLOAK_ADMIN_REALM: finmatica
-      KEYCLOAK_ADMIN_CLIENT_ID: authtestproject-api
-      KEYCLOAK_ADMIN_ADMIN_CLIENT_ID: finmatica-admin
-      KEYCLOAK_ADMIN_ADMIN_CLIENT_SECRET: finmatica-admin-secret-change-in-production
+      KEYCLOAK_ADMIN_CLIENT_ID: finmatica-admin
+      KEYCLOAK_ADMIN_CLIENT_SECRET: finmatica-admin-secret-change-in-production
+      CLIENT_ID: postman
       TOKEN_URL: http://localhost:8081
       JAVA_OPTS: -Xms256m -Xmx512m
     ports:
@@ -167,7 +167,6 @@ networks:
     name: wso2-container_default
 
 volumes:
-  # Solo il DB di Keycloak rimane gestito da Docker
   keycloak_db_data:
   wso2_db:
   wso2_server:

@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Profile;
 @Data
 @Configuration
 @Profile("keycloak")
-@ConfigurationProperties(prefix = "keycloak.admin")
+@ConfigurationProperties(prefix = "app.keycloak-admin")
 public class KeycloakAdminProperties {
 
     private String serverUrl;

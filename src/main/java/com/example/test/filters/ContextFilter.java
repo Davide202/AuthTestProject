@@ -6,18 +6,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -32,41 +25,18 @@ public class ContextFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(ContextFilter.class);
     private static final String TENANT_HEADER = "X-Tenant-Id";
+    private static final String CID = "cid";
+
 
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain
-    ) throws ServletException, IOException {
-
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        if (securityContext != null) {
-            Authentication authentication = securityContext.getAuthentication();
-            if (authentication != null){
-
-                Object principal = authentication.getPrincipal();
-                if (principal != null && principal instanceof Jwt jwt) {
-                    log.info("Authentication principal subject is Jwt {}",jwt.getSubject());
-                    log.info("Authentication principal claims is Jwt {}",jwt.getClaims());
-                }
-                var ga = authentication.getAuthorities();
-                if (ga != null && !ga.isEmpty()){
-                    List<String> roles = ga.stream().map(GrantedAuthority::getAuthority).toList();
-                    ContextWrapper.put("roles", roles);
-                    log.info("Roles in Jwt: {}", roles);
-                }else{
-                    log.info("No Roles in Jwt");
-                }
-
-            }
-
-        }
-
-        MDC.put("cid",UUID.randomUUID().toString());
-
+    ) throws ServletException, IOException
+    {
+        MDC.put(CID,UUID.randomUUID().toString());
         String tenantHeader = request.getHeader(TENANT_HEADER);
-
         if (tenantHeader != null && !tenantHeader.isBlank()) {
             try {
                 UUID tenantId = UUID.fromString(tenantHeader);
@@ -78,7 +48,6 @@ public class ContextFilter extends OncePerRequestFilter {
                 return;
             }
         }
-
         try {
             filterChain.doFilter(request, response);
         } finally {

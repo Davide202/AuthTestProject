@@ -4,6 +4,7 @@ package com.example.test.config.keycloak;
 
 import com.example.test.config.CorsProperties;
 import com.example.test.filters.ContextFilter;
+import com.example.test.filters.JwtContextFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +16,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
@@ -24,8 +27,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 
 
 @Configuration
@@ -35,12 +37,13 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class KeycloakSecurityConfig {
 
-    private final ContextFilter tenantFilter;
+    private final ContextFilter contextFilter;
+    private final JwtContextFilter jwtContextFilter;
     private final CorsProperties corsProperties;
 
 
-    @Bean
-    public JwtDecoder jwtDecoder(
+    //@Bean
+    public JwtDecoder jwtDecoder1(
             // 1. URL Interno per scaricare le chiavi (jwkSetUri)
             @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkSetUri,
             // 2. URL Esterno per validare l'Issuer (issuerUri)
@@ -64,6 +67,33 @@ public class KeycloakSecurityConfig {
         return jwtDecoder;
     }
 
+    @Bean
+    public JwtDecoder jwtDecoder(
+            @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkSetUri,
+            @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuerUri
+    ) {
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+
+        // 1. Creiamo un validatore custom che accetta sia localhost (da Swagger) sia keycloak (da WSO2)
+        OAuth2TokenValidator<Jwt> customIssuerValidator = jwt -> {
+            String tokenIssuer = jwt.getIssuer() != null ? jwt.getIssuer().toString() : "";
+            if (tokenIssuer.equals(issuerUri) || tokenIssuer.equals("http://keycloak:8081/realms/finmatica")) {
+                return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.success();
+            }
+            return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.failure(
+                    new org.springframework.security.oauth2.core.OAuth2Error("invalid_token", "Issuer non valido: " + tokenIssuer, null)
+            );
+        };
+
+        // 2. Uniamo il nostro validatore con quello di Spring che controlla la scadenza del token (exp)
+        OAuth2TokenValidator<Jwt> delegatingValidator = new org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator<>(
+                new org.springframework.security.oauth2.jwt.JwtTimestampValidator(),
+                customIssuerValidator
+        );
+
+        jwtDecoder.setJwtValidator(delegatingValidator);
+        return jwtDecoder;
+    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter(
@@ -118,7 +148,8 @@ public class KeycloakSecurityConfig {
                 )
                 .oauth2ResourceServer(oauth ->
                         oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
-                .addFilterAfter(tenantFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
+                .addFilterBefore(contextFilter, BearerTokenAuthenticationFilter.class)
+                .addFilterAfter(jwtContextFilter, BearerTokenAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();

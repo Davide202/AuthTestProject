@@ -1,5 +1,8 @@
 package com.example.test.config.basicauth;
 
+import com.example.test.filters.ContextFilter;
+import com.example.test.filters.JwtContextFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,13 +18,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @Profile("basicAuth") //java -jar app.jar --spring.profiles.active=basicAuth
+@RequiredArgsConstructor
 public class BasicAuthSecurityConfig {
+
+    private final ContextFilter contextFilter;
+    private final JwtContextFilter jwtContextFilter;
 
     @Value("${app.security.basic.username:admin}")
     private String basicUsername;
@@ -43,6 +51,8 @@ public class BasicAuthSecurityConfig {
                         ).permitAll() // Rotte libere
                         .anyRequest().authenticated()             // Tutto il resto protetto
                 )
+                .addFilterBefore(contextFilter, BearerTokenAuthenticationFilter.class)
+                .addFilterAfter(jwtContextFilter, BearerTokenAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults()); // Attiva la Basic Auth
 
         return http.build();
