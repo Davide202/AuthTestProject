@@ -21,6 +21,7 @@ http:
         value: openid profile email
       - name: client_secret
         value: nPQyWKVdvjcVpXZYS2idUQkcf34eNNzw
+        disabled: true
 
 runtime:
   scripts:
