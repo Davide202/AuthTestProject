@@ -8,7 +8,6 @@ import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -18,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 @Profile("keycloak")
 @RequiredArgsConstructor
-public class KeycloalAdminClientConfig {
+public class KeycloakAdminClientConfig {
 
 
     private final ObjectMapper objectMapper;

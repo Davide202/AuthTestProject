@@ -3,7 +3,10 @@ package com.example.test.config.wso2;
 import com.example.test.config.CorsProperties; // Assicurati che il path sia corretto
 import com.example.test.filters.ContextFilter;
 import com.example.test.filters.JwtContextFilter;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -11,6 +14,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,10 +29,18 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+
 /**
  * # L'URL deve puntare all'endpoint di WSO2 che espone le chiavi (solitamente /oauth2/jwks)
  * spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://<wso2-host>:<port>/oauth2/jwks
  */
+@Log4j2
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -31,71 +50,31 @@ public class Wso2JwtSecurityConfig {
 
     private final ContextFilter contextFilter;
     private final JwtContextFilter jwtContextFilter;
+    private final JwtAuthenticationConverter jwtAuthenticationConverter;
+    private final UrlBasedCorsConfigurationSource corsConfigurationSource;
 
-    // 1. INIETTIAMO LE PROPRIETA' CORS (come fatto per Keycloak)
-    private final CorsProperties corsProperties;
-
-    // 2. AGGIUNGIAMO IL BEAN PER I CORS
-    @Bean
-    UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOriginPatterns(corsProperties.getAllowedOrigins());
-        configuration.setAllowedMethods(corsProperties.getAllowedMethods());
-        configuration.setAllowedHeaders(corsProperties.getAllowedHeaders());
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    @Value("${app.public-apis}")
+    private String[] pubApisConfigured;
 
     @Bean
     public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
+        log.info("Public apis {}", Arrays.toString(pubApisConfigured));
         http
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // 3. ABILITIAMO I CORS NELLA FILTER CHAIN
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // --- ATTENZIONE QUI ---
-                // Ho commentato il securityMatcher perché andava in conflitto con Swagger!
-                // .securityMatcher("/api/**")
-
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers(
-                                        "/public/**",
-                                        "/actuator/health",
-                                        "/actuator/info",
-                                        "/v3/api-docs/**",
-                                        "/swagger-ui/**",
-                                        "/swagger-ui.html"
-                                ).permitAll()
-                                .anyRequest().authenticated()
+                            .requestMatchers(pubApisConfigured).permitAll()
+                            .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        // 4. FIX: Hai creato il converter in basso, ma non lo stavi usando!
-                        // Usando Customizer.withDefaults() Spring ignorava il tuo converter per WSO2.
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                )
+                .oauth2ResourceServer(oauth ->
+                        oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
                 .addFilterBefore(contextFilter,     BearerTokenAuthenticationFilter.class)
-                .addFilterAfter(jwtContextFilter,   BearerTokenAuthenticationFilter.class);
-
+                .addFilterAfter(jwtContextFilter,   BearerTokenAuthenticationFilter.class)
+        ;
         return http.build();
     }
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
-        // 1. Specifica il nome del claim nel token (WSO2 usa spesso "groups" o "roles")
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("groups");
 
-        // 2. Aggiungi il prefisso "ROLE_" (Spring lo richiede per hasRole)
-        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
-
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
-    }
 }

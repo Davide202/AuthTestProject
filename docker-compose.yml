@@ -153,6 +153,7 @@ services:
       # Comunicazione interna usando hostname 'api-manager' e porta '9443'
       JWT_ISSUER_URI: https://api-manager:9443/oauth2/token
       JWT_JWK_SET_URI: https://api-manager:9443/oauth2/jwks
+      WSO2_USER_INFO_URI: https://api-manager:9443/oauth2/userinfo
       TOKEN_URL: https://localhost:9443
       JAVA_OPTS: -Xms256m -Xmx512m
     ports:

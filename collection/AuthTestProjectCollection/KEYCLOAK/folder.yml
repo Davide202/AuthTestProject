@@ -6,7 +6,7 @@ info:
 request:
   auth:
     type: bearer
-    token: "{{user_token}}"
+    token: "{{admin_token}}"
   variables:
     - name: host
       value: http://localhost:8083/keycloak

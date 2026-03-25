@@ -17,9 +17,12 @@ request:
       placement:
         header: Bearer
       source: access_token
+    settings:
+      autoFetchToken: true
+      autoRefreshToken: false
   variables:
     - name: host
-      value: https://localhost:8243/keycloak/1.0
+      value: "{{wso2_base_url}}/keycloak/1.0"
     - name: admin_token
       value: ""
     - name: user_token

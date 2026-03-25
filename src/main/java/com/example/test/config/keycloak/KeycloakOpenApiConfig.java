@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.OAuthFlow;
 import io.swagger.v3.oas.models.security.OAuthFlows;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,20 +15,19 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile("keycloak")
+@RequiredArgsConstructor
 public class KeycloakOpenApiConfig {
 
-
+    private static final String OAUTH_SCHEME_NAME = "KeycloakPasswordFlow";
     @Value("${springdoc.swagger-ui.oauth.token-url}")
     private String serverUrl;
+    private final KeycloakAdminProperties properties;
 
-    @Value("${keycloak.admin.realm}")
-    private String realm;
 
-    private static final String OAUTH_SCHEME_NAME = "KeycloakPasswordFlow";
 
     @Bean
     public OpenAPI customOpenAPI() {
-
+        String realm = properties.getRealm();
         String tokenUrl = String.format("%s/realms/%s/protocol/openid-connect/token", serverUrl, realm);
 
         return new OpenAPI()

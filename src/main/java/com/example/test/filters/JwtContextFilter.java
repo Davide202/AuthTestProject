@@ -38,9 +38,9 @@ public class JwtContextFilter extends OncePerRequestFilter {
                 if (ga != null && !ga.isEmpty()){
                     List<String> roles = ga.stream().map(GrantedAuthority::getAuthority).toList();
                     ContextWrapper.put("roles", roles);
-                    log.info("Roles in Jwt: {}", roles);
+                    log.info("Roles in SecurityContext: {}", roles);
                 }else{
-                    log.info("No Roles in Jwt");
+                    log.info("No Roles in SecurityContext");
                 }
             }
         }
