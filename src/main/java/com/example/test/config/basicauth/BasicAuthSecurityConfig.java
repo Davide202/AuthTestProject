@@ -38,11 +38,14 @@ public class BasicAuthSecurityConfig {
     @Value("${app.public-apis}")
     private String[] pubApisConfigured;
 
-    @Value("${app.security.basic.username:admin}")
+    @Value("${app.security.basic.username}")
     private String basicUsername;
 
-    @Value("${app.security.basic.password:password123}")
+    @Value("${app.security.basic.password}")
     private String basicPassword;
+
+    @Value("${app.security.basic.roles}")
+    private String[] basicRoles;
 
 
     @Bean
@@ -63,11 +66,14 @@ public class BasicAuthSecurityConfig {
     }
     @Bean
     public UserDetailsService userDetailsService() {
-        // 2. USO DELLE VARIABILI INIETTATE PER CREARE L'UTENTE
+
+        String[] roles = Arrays.stream(basicRoles)
+            .map(r -> r.replace("ROLE_",""))
+            .toArray(String[]::new);
         UserDetails user = User.builder()
                 .username(basicUsername)
                 .password(passwordEncoder().encode(basicPassword))
-                .roles("ADMIN")
+                .roles(roles)
                 .build();
 
         return new InMemoryUserDetailsManager(user);

@@ -37,7 +37,8 @@ app:
   security:
     basic:
       username: admin
-      password: password123
+      password: password
+      roles: ADMIN
   keycloak-admin:
     server-url: ${KEYCLOAK_ADMIN_SERVER_URL:http://localhost:8081}
     realm: ${KEYCLOAK_ADMIN_REALM:finmatica}
