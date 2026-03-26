@@ -13,11 +13,20 @@
 # Login: admin@test.com / admin
 #
 # IMPORTANT: Credentials below are for local/dev only.
+
+# DOCKER COMPOSE COMMANDS
+# docker-compose --profile basic up -d
+# docker-compose --profile keycloak up -d
+# docker-compose --profile wso2 up -d
 services:
 
   api-manager:
     image: wso2/wso2am:4.3.0
     container_name: wso2am
+    profiles:
+      - "keycloak"
+      - "basic"
+      - "wso2"
     ports:
       - "9443:9443"
       - "8280:8280"
@@ -40,6 +49,8 @@ services:
   keycloak-db:
     image: postgres:16
     container_name: keycloak-db
+    profiles:
+      - "keycloak"
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
@@ -59,6 +70,8 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.8
     container_name: keycloak
+    profiles:
+      - "keycloak"
     depends_on:
       keycloak-db:
         condition: service_healthy
@@ -89,6 +102,8 @@ services:
   pgadmin:
     image: dpage/pgadmin4:8.14
     container_name: pgadmin
+    profiles:
+      - "keycloak"
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@test.com
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -108,6 +123,8 @@ services:
       dockerfile: Dockerfile
       no_cache: true
     container_name: basic-backend
+    profiles:
+      - "basic"
     depends_on:
       api-manager:
         condition: service_healthy
@@ -123,6 +140,12 @@ services:
       - "8082:8082"
     networks:
       - app-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/basicAuth/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   keycloak-backend:
     build:
@@ -130,6 +153,8 @@ services:
       dockerfile: Dockerfile
       no_cache: true
     container_name: keycloak-backend
+    profiles:
+      - "keycloak"
     depends_on:
       keycloak:
         condition: service_healthy
@@ -152,6 +177,12 @@ services:
       - "8083:8083"
     networks:
       - app-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8083/keycloak/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   wso2-backend:
     build:
@@ -159,6 +190,8 @@ services:
       dockerfile: Dockerfile
       no_cache: true
     container_name: wso2-backend
+    profiles:
+      - "wso2"
     depends_on:
       api-manager:
         condition: service_healthy
@@ -175,8 +208,13 @@ services:
       - "8084:8084"
     networks:
       - app-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8084/wso2/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
-# Definiamo la nostra rete ponte personalizzata
 networks:
   app-net:
     driver: bridge
