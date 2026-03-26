@@ -21,7 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Log4j2
 @Component
-public class JwtContextFilter extends OncePerRequestFilter {
+public class SecurityContextFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -30,10 +30,14 @@ public class JwtContextFilter extends OncePerRequestFilter {
             Authentication authentication = securityContext.getAuthentication();
             if (authentication != null){
                 Object principal = authentication.getPrincipal();
-                if (principal != null && principal instanceof Jwt jwt) {
-                    log.info("Authentication principal subject is Jwt {}",jwt.getSubject());
-                    log.info("Authentication principal claims is Jwt {}",jwt.getClaims());
+                if (principal != null){
+                    log.info("Authentication Principal :: {} :: {}",principal.getClass().getSimpleName(),principal.toString() );
+                    if (principal instanceof Jwt jwt) {
+                        log.info("Authentication principal subject is Jwt {}",jwt.getSubject());
+                        log.info("Authentication principal claims is Jwt {}",jwt.getClaims());
+                    }
                 }
+                //if (principal instanceof )
                 var ga = authentication.getAuthorities();
                 if (ga != null && !ga.isEmpty()){
                     List<String> roles = ga.stream().map(GrantedAuthority::getAuthority).toList();

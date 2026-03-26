@@ -1,11 +1,10 @@
-package com.example.test.config;
+package com.example.test.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * Environment util.

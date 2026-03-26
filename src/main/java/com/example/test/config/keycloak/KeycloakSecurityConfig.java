@@ -2,14 +2,13 @@ package com.example.test.config.keycloak;
 
 
 import com.example.test.filters.ContextFilter;
-import com.example.test.filters.JwtContextFilter;
+import com.example.test.filters.SecurityContextFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,7 +30,7 @@ import java.util.Arrays;
 public class KeycloakSecurityConfig {
 
     private final ContextFilter contextFilter;
-    private final JwtContextFilter jwtContextFilter;
+    private final SecurityContextFilter securityContextFilter;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final UrlBasedCorsConfigurationSource corsConfigurationSource;
 
@@ -52,7 +51,7 @@ public class KeycloakSecurityConfig {
                 .oauth2ResourceServer(oauth ->
                         oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
                 .addFilterBefore(contextFilter, BearerTokenAuthenticationFilter.class)
-                .addFilterAfter(jwtContextFilter, BearerTokenAuthenticationFilter.class)
+                .addFilterAfter(securityContextFilter, BearerTokenAuthenticationFilter.class)
         ;
         return http.build();
     }

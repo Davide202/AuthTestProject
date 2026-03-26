@@ -1,6 +1,8 @@
 package com.example.test.config.wso2;
 
 
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +17,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Configuration
 @Profile("wso2")
@@ -26,7 +31,8 @@ public class Wso2JwtDecoderConfig {
             @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkSetUri,
             @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuerUri
     ) {
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+        NimbusJwtDecoder jwtDecoder = this.nimbusJwtDecoder(jwkSetUri,"jwt","at+jwt");
+                //NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
 
         OAuth2TokenValidator<Jwt> customIssuerValidator = jwt -> {
             String tokenIssuer = jwt.getIssuer() != null ? jwt.getIssuer().toString() : "";
@@ -46,5 +52,18 @@ public class Wso2JwtDecoderConfig {
 
         jwtDecoder.setJwtValidator(delegatingValidator);
         return jwtDecoder;
+    }
+
+    private NimbusJwtDecoder nimbusJwtDecoder(String jwkSetUri,String... allowedTypes){
+        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+                .jwtProcessorCustomizer(customizer -> {
+                    customizer.setJWSTypeVerifier(this.defaultJOSEObjectTypeVerifier(allowedTypes));
+                }).build();
+    }
+    private DefaultJOSEObjectTypeVerifier defaultJOSEObjectTypeVerifier(String... allowedTypes){
+        List<JOSEObjectType> list = new ArrayList<>();
+        for (String s : allowedTypes) list.add(new JOSEObjectType(s));
+        list.add(null);
+        return new DefaultJOSEObjectTypeVerifier<>(list.toArray(JOSEObjectType[]::new));
     }
 }

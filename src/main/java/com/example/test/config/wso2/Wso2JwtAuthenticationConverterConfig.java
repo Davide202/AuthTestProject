@@ -2,6 +2,8 @@ package com.example.test.config.wso2;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -29,7 +31,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class Wso2JwtAuthenticationConverterConfig {
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("nosslverification")
+    private RestTemplate restTemplate;
 
     @Value("${app.wso2.user-info}")
     private String userInfoUrl;
@@ -66,6 +70,8 @@ public class Wso2JwtAuthenticationConverterConfig {
                 ResponseEntity<Map> response = restTemplate.exchange(userInfoUrl, HttpMethod.GET, entity, Map.class);
 
                 Map<String, Object> userInfo = response.getBody();
+
+                log.debug("UserInfo :: {}",userInfo);
 
                 // 3. Estraiamo i ruoli.
                 // ATTENZIONE: Controlla su Bruno se WSO2 usa "groups", "roles", o "http://wso2.org/claims/role"

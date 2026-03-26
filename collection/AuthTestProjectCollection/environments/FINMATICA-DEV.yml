@@ -16,3 +16,7 @@ variables:
     value: postman
   - name: wso2_base_url
     value: https://localhost:8243
+  - name: wso2_client_id
+    value: ZKhi34gVqsNHMHdZzZOmz2FHSX0a
+  - name: wso2_client_password
+    value: RVATOv0hr_4Mw_8Zs7Ma5QsPuV4a

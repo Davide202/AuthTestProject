@@ -23,15 +23,19 @@ services:
       - "8280:8280"
       - "8243:8243"
     volumes:
-      # Volumi mappati localmente per permettere il versionamento
       - wso2_db:/home/wso2carbon/wso2am-4.3.0/repository/database
       - wso2_server:/home/wso2carbon/wso2am-4.3.0/repository/deployment/server
       - ./deployment.toml:/home/wso2carbon/wso2am-4.3.0/repository/conf/deployment.toml:ro
     environment:
       - JVM_MEM_OPTS=-Xms1024m -Xmx2048m
     networks:
-      - default
-      - wso2-net
+      - app-net
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:9443/carbon/admin/login.jsp"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
 
   keycloak-db:
     image: postgres:16
@@ -44,6 +48,8 @@ services:
       - "5433:5432"
     volumes:
       - keycloak_db_data:/var/lib/postgresql/data
+    networks:
+      - app-net
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U keycloak" ]
       interval: 5s
@@ -65,17 +71,16 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: kcadmin
     command:
       - start-dev
-      # Keycloak configurato per girare nativamente sulla 8081
       - --http-port=8081
       - --import-realm
       - --hostname-strict=false
-      # - --hostname-strict-https=false
     ports:
       - "8081:8081"
     volumes:
       - ./realm-finmatica.json:/opt/keycloak/data/import/realm-finmatica.json:ro
+    networks:
+      - app-net
     healthcheck:
-      # Healthcheck aggiornato alla porta 8081
       test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8081" ]
       interval: 10s
       timeout: 5s
@@ -94,6 +99,8 @@ services:
     depends_on:
       keycloak-db:
         condition: service_healthy
+    networks:
+      - app-net
 
   basic-backend:
     build:
@@ -102,7 +109,7 @@ services:
       no_cache: true
     container_name: basic-backend
     depends_on:
-      keycloak:
+      api-manager:
         condition: service_healthy
     environment:
       PORT: 8082
@@ -111,9 +118,11 @@ services:
       JAVA_OPTS: -Xms256m -Xmx512m
       APP_SECURITY_BASIC_USERNAME: myCustomAdmin
       APP_SECURITY_BASIC_PASSWORD: MySuperSecretPassword!
-      APP_SECURITY_BASIC_ROLES: ADMIN
+      APP_SECURITY_BASIC_ROLES: ADMIN,USER,WSO2_MANAGER
     ports:
       - "8082:8082"
+    networks:
+      - app-net
 
   keycloak-backend:
     build:
@@ -124,11 +133,12 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
+      api-manager:
+        condition: service_healthy
     environment:
       PORT: 8083
       CONTEXT_PATH: /keycloak
       AUTH_PROFILE: keycloak
-      # Comunicazione interna usando hostname 'keycloak' e porta '8081'
       JWT_ISSUER_URI: http://localhost:8081/realms/finmatica
       JWT_JWK_SET_URI: http://keycloak:8081/realms/finmatica/protocol/openid-connect/certs
       KEYCLOAK_ADMIN_SERVER_URL: http://keycloak:8081
@@ -140,6 +150,8 @@ services:
       JAVA_OPTS: -Xms256m -Xmx512m
     ports:
       - "8083:8083"
+    networks:
+      - app-net
 
   wso2-backend:
     build:
@@ -147,11 +159,13 @@ services:
       dockerfile: Dockerfile
       no_cache: true
     container_name: wso2-backend
+    depends_on:
+      api-manager:
+        condition: service_healthy
     environment:
       PORT: 8084
       CONTEXT_PATH: /wso2
       AUTH_PROFILE: wso2
-      # Comunicazione interna usando hostname 'api-manager' e porta '9443'
       JWT_ISSUER_URI: https://api-manager:9443/oauth2/token
       JWT_JWK_SET_URI: https://api-manager:9443/oauth2/jwks
       WSO2_USER_INFO_URI: https://api-manager:9443/oauth2/userinfo
@@ -160,13 +174,12 @@ services:
     ports:
       - "8084:8084"
     networks:
-      - default
-      - wso2-net
+      - app-net
 
+# Definiamo la nostra rete ponte personalizzata
 networks:
-  wso2-net:
-    external: true
-    name: wso2-container_default
+  app-net:
+    driver: bridge
 
 volumes:
   keycloak_db_data:

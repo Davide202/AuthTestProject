@@ -1,9 +1,7 @@
 package com.example.test.config.wso2;
 
-import com.example.test.config.CorsProperties; // Assicurati che il path sia corretto
 import com.example.test.filters.ContextFilter;
-import com.example.test.filters.JwtContextFilter;
-import jakarta.annotation.PostConstruct;
+import com.example.test.filters.SecurityContextFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,26 +12,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 /**
@@ -49,7 +32,7 @@ import java.util.Arrays;
 public class Wso2JwtSecurityConfig {
 
     private final ContextFilter contextFilter;
-    private final JwtContextFilter jwtContextFilter;
+    private final SecurityContextFilter securityContextFilter;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final UrlBasedCorsConfigurationSource corsConfigurationSource;
 
@@ -70,7 +53,7 @@ public class Wso2JwtSecurityConfig {
                 .oauth2ResourceServer(oauth ->
                         oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
                 .addFilterBefore(contextFilter,     BearerTokenAuthenticationFilter.class)
-                .addFilterAfter(jwtContextFilter,   BearerTokenAuthenticationFilter.class)
+                .addFilterAfter(securityContextFilter,   BearerTokenAuthenticationFilter.class)
         ;
         return http.build();
     }

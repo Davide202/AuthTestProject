@@ -1,7 +1,7 @@
 package com.example.test.config.basicauth;
 
 import com.example.test.filters.ContextFilter;
-import com.example.test.filters.JwtContextFilter;
+import com.example.test.filters.SecurityContextFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +33,7 @@ import java.util.Arrays;
 public class BasicAuthSecurityConfig {
 
     private final ContextFilter contextFilter;
-    private final JwtContextFilter jwtContextFilter;
+    private final SecurityContextFilter securityContextFilter;
 
     @Value("${app.public-apis}")
     private String[] pubApisConfigured;
@@ -59,7 +59,7 @@ public class BasicAuthSecurityConfig {
                     .anyRequest().authenticated()
                 )
                 .addFilterBefore(contextFilter, BasicAuthenticationFilter.class)
-                .addFilterAfter(jwtContextFilter, BasicAuthenticationFilter.class)
+                .addFilterAfter(securityContextFilter, BasicAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults()); // Attiva la Basic Auth
 
         return http.build();
