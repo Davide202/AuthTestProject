@@ -14,7 +14,7 @@
         <!-- Spring -->
         <!--    <Logger name="org.springframework" level="INFO"/>-->
         <!--    <Logger name="org.hibernate.SQL" level="INFO"/>-->
-        <!--    <Logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG"/>-->
+        <Logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG"/>
         <Logger name="org.apache.tomcat.util.net.NioEndpoint" level="ERROR"/>
         <Logger name="org.apache.catalina.session.ManagerBase" level="ERROR"/>
         <Logger name="com.zaxxer.hikari.pool.HikariPool" level="ERROR"/>
@@ -23,6 +23,7 @@
         <Logger name="javax.management.mbeanserver" level="ERROR"/>
         <Logger name="javax.management.misc" level="ERROR"/>
         <Logger name="org.hibernate.validator.internal.engine.constraintvalidation" level="ERROR"/>
+        <Logger name="org.springframework.security" level="ERROR"/>
 
         <!-- Application -->
         <Logger name="com.example.test" level="DEBUG" additivity="false">

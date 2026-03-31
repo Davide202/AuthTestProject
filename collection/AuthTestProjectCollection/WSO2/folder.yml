@@ -5,25 +5,8 @@ info:
 
 request:
   auth:
-    type: oauth2
-    flow: resource_owner_password_credentials
-    accessTokenUrl: https://localhost:9443/oauth2/token
-    credentials:
-      clientId: ZKhi34gVqsNHMHdZzZOmz2FHSX0a
-      clientSecret: RVATOv0hr_4Mw_8Zs7Ma5QsPuV4a
-      placement: basic_auth_header
-    resourceOwner:
-      username: admin
-      password: admin
-    scope: openid profile email roles
-    tokenConfig:
-      id: credentials
-      placement:
-        header: Bearer
-      source: access_token
-    settings:
-      autoFetchToken: true
-      autoRefreshToken: false
+    type: bearer
+    token: "{{wso2_jwt}}"
   variables:
     - name: host
       value: http://localhost:8084/wso2
@@ -35,7 +18,13 @@ request:
       value: ""
     - name: user_id_token
       value: ""
-    - name: wso2_admin_username
-      value: admin
-    - name: wso2_admin_password
-      value: admin
+  scripts:
+    - type: before-request
+      code: |-
+        const { basicAuth } = require('./wso2util.js');
+
+        bru.setEnvVar("wso2_jwt", "xxx");
+        const newTokens = await basicAuth(bru);
+        bru.setEnvVar("wso2_jwt", newTokens.accessToken);
+
+        //console.log("💾 Token scritti con successo nell'ambiente di Bruno!");

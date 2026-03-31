@@ -1,26 +1,12 @@
 info:
-  name: Get Token
+  name: config
   type: http
-  seq: 1
+  seq: 2
 
 http:
-  method: POST
-  url: https://localhost:9443/oauth2/token
-  body:
-    type: form-urlencoded
-    data:
-      - name: username
-        value: admin
-      - name: password
-        value: admin
-      - name: grant_type
-        value: password
-      - name: scope
-        value: openid  groups roles internal_login
-  auth:
-    type: basic
-    username: "{{wso2_client_id}}"
-    password: "{{wso2_client_password}}"
+  method: GET
+  url: https://localhost:9443/oauth2/oidcdiscovery/.well-known/openid-configuration
+  auth: inherit
 
 runtime:
   scripts:
@@ -39,17 +25,15 @@ runtime:
 
         // 1. Save Access Token
         if (body.access_token) {
-            bru.setVar("wso2_jwt", body.access_token);
+            bru.setVar("admin_token", body.access_token);
             printAccessToken('Access Token',body.access_token);
         }
 
         // 2. Save ID Token
-        /*
         if (body.id_token) {
             bru.setVar("admin_id_token", body.id_token);
             printAccessToken('Id Token',body.id_token);
         }
-        */
 
 settings:
   encodeUrl: true

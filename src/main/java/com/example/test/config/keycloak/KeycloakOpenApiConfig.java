@@ -3,10 +3,7 @@ package com.example.test.config.keycloak;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.OAuthFlow;
-import io.swagger.v3.oas.models.security.OAuthFlows;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.security.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,30 +20,30 @@ public class KeycloakOpenApiConfig {
     private String serverUrl;
     private final KeycloakAdminProperties properties;
 
-
-
     @Bean
     public OpenAPI customOpenAPI() {
-        String realm = properties.getRealm();
-        String tokenUrl = String.format("%s/realms/%s/protocol/openid-connect/token", serverUrl, realm);
-
         return new OpenAPI()
-                .info(new Info().title("Finmatica API").version("1.0").description("API protette da Keycloak"))
-                .addSecurityItem(new SecurityRequirement().addList(OAUTH_SCHEME_NAME))
-                .components(
-                        new Components()
-                                .addSecuritySchemes(
-                                        OAUTH_SCHEME_NAME,
-                                        new SecurityScheme()
-                                                .name(OAUTH_SCHEME_NAME)
-                                                .type(SecurityScheme.Type.OAUTH2)
-                                                .flows(
-                                                        new OAuthFlows()
-                                                                .password(
-                                                                        new OAuthFlow().tokenUrl(tokenUrl)
-                                                                )
-                                                )
-                                )
+            .info(new Info().title("Finmatica API").version("1.0")
+                    .description("API protette da Keycloak"))
+            .addSecurityItem(new SecurityRequirement().addList(OAUTH_SCHEME_NAME))
+            .components(new Components().addSecuritySchemes(OAUTH_SCHEME_NAME, securitySchemeOauth()));
+    }
+
+    private SecurityScheme securitySchemeOauth(){
+        return new SecurityScheme()
+                //.name(OAUTH_SCHEME_NAME)
+                // Secondo le specifiche ufficiali di OpenAPI 3.0,
+                // l'attributo name è valido soltanto quando il tipo di sicurezza è apiKey
+                // (in cui il name rappresenta il nome reale dell'header o query param da cercare)
+                .type(SecurityScheme.Type.OAUTH2)
+                .flows(new OAuthFlows().password(
+                        new OAuthFlow().tokenUrl(getTokenUrl()).scopes(new Scopes())
+                        )
                 );
+    }
+
+    private String getTokenUrl(){
+        String realm = properties.getRealm();
+        return String.format("%s/realms/%s/protocol/openid-connect/token", serverUrl, realm);
     }
 }

@@ -30,15 +30,40 @@ docker rm temp-wso2
 
 -----
 
-## 🚀 Avvio dell'Ambiente
+## 🚀 Avvio dell'Ambiente (Profili Docker Compose)
 
-Per costruire le immagini dei backend e avviare tutta l'infrastruttura in background, esegui:
+Questo progetto usa i **profili Docker Compose** per permetterti di avviare solo l'infrastruttura che ti serve in quel momento. Scegli uno dei comandi seguenti per avviare l'ambiente desiderato:
 
+### 🔒 1. Profilo Basic Auth
+*(Avvia l'API Manager e il backend protetto tramite Basic Auth)*
+###### Avvia lo stack Basic Auth in detatched mode
 ```bash
-docker compose up -d --build
+docker compose --profile basic up -d
 ```
 
-Il flag `--build` assicura che qualsiasi modifica fatta al codice sorgente dei backend Spring Boot venga compilata in una nuova immagine prima dell'avvio.
+### 🔑 2. Profilo Keycloak
+*(Avvia PostgreSQL, Keycloak, pgAdmin, API Manager e il backend protetto da Keycloak)*
+###### Avvia lo stack Keycloak in detatched mode
+```bash
+docker compose --profile keycloak up -d
+```
+
+### 🧩 3. Profilo WSO2
+*(Avvia l'API Manager e il backend protetto da token nativi WSO2)*
+###### Avvia lo stack WSO2 in detatched mode
+```bash
+docker compose --profile wso2 up -d
+```
+
+### 🌟 4. Avvio di Tutti i Profili
+*(Avvia contemporaneamente l'intera infrastruttura completa)*
+###### Avvia tutti i profili contemporaneamente in detatched mode
+```bash
+docker compose --profile basic --profile keycloak --profile wso2 up -d
+```
+
+> **💡 Suggerimento (Compilazione a runtime):**
+> Aggiungi il flag `--build` alla fine di un qualsiasi comando (es. `docker compose --profile keycloak up -d --build`) per forzare la costruzione e l'aggiornamento delle immagini dei backend Spring Boot con il tuo codice sorgente più recente.
 
 -----
 
@@ -50,11 +75,24 @@ Per fermare i container mantenendo intatti i dati dei database:
 docker compose down
 ```
 
-**⚠️ Attenzione: Pulizia totale (Hard Reset)**
+**⚠️ Attenzione: Pulizia totale (Hard Reset dei volumi)**
 Se hai bisogno di piallare l'ambiente (es. per ricaricare da zero il realm di Keycloak o resettare il DB PostgreSQL), aggiungi il flag `-v`. Questo eliminerà i container e **distruggerà tutti i volumi Docker non locali**:
 
 ```bash
 docker compose down -v
+```
+
+**🗑️ Eliminazione delle Immagini**
+Se vuoi rimuovere anche le immagini (es. per forzare una build pulita dei backend Spring Boot o liberare spazio), puoi aggiungere il flag `--rmi local` per rimuovere solo le immagini compilate localmente, oppure `--rmi all` per rimuovere anche le immagini base scaricate.
+
+###### Rimuovi container e immagini compilate localmente (Backend Spring Boot)
+```bash
+docker compose down --rmi local
+```
+
+###### Hard reset completo: rimuovi container, volumi e TUTTE le immagini
+```bash
+docker compose down -v --rmi all
 ```
 
 -----
@@ -91,9 +129,11 @@ Una volta che tutti i container sono "healthy", puoi accedere ai servizi tramite
 ### ☕ Backend (Spring Boot)
 
 - **Basic Auth Backend:** http://localhost:8082/basicAuth
+  - *Swagger UI:* [http://localhost:8082/basicAuth/swagger-ui/index.html]
 - **Keycloak Backend:** http://localhost:8083/keycloak
-    - *Swagger UI:* [http://localhost:8083/keycloak/swagger-ui/index.html](https://www.google.com/search?q=http://localhost:8083/keycloak/swagger-ui/index.html)
+    - *Swagger UI:* [http://localhost:8083/keycloak/swagger-ui/index.html]
 - **WSO2 Backend:** http://localhost:8084/wso2
+  - *Swagger UI:* [http://localhost:8084/wso2/swagger-ui/index.html]
 
 <!-- end list -->
 

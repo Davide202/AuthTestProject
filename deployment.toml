@@ -68,3 +68,17 @@ url = "jdbc:h2:file:/home/wso2carbon/wso2am-4.3.0/repository/database/WSO2AM_DB;
 username = "wso2carbon"
 password = "wso2carbon"
 driver = "org.h2.Driver"
+
+[apim.cors]
+enable = true
+allow_origins = ["*"]
+allow_methods = ["GET","PUT","POST","DELETE","PATCH","OPTIONS"]
+allow_headers = ["authorization","Access-Control-Allow-Origin","Content-Type","SOAPAction","apikey","Internal-Key"]
+allow_credentials = false
+
+[apim.jwt]
+enable = true
+header = "X-JWT-Assertion"
+signing_algorithm = "SHA256withRSA"
+enable_user_claims = true
+claims_extractor_impl = "org.wso2.carbon.apimgt.impl.token.DefaultClaimsRetriever"

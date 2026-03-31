@@ -1,5 +1,5 @@
 info:
-  name: WSO2 KEYCLOAK
+  name: WSO2 BASIC
   type: folder
   seq: 1
 
@@ -9,8 +9,8 @@ request:
     flow: client_credentials
     accessTokenUrl: https://localhost:9443/oauth2/token
     credentials:
-      clientId: ZKhi34gVqsNHMHdZzZOmz2FHSX0a
-      clientSecret: RVATOv0hr_4Mw_8Zs7Ma5QsPuV4a
+      clientId: BR_VLBANhhjfA2fBY1slrYPgS10a
+      clientSecret: KPMtuNgV_P0Dc8LfVIq1SbOkXPMa
       placement: basic_auth_header
     tokenConfig:
       id: credentials
@@ -22,7 +22,7 @@ request:
       autoRefreshToken: false
   variables:
     - name: host
-      value: "{{wso2_base_url}}/keycloak/1.0"
+      value: "{{wso2_base_url}}/basicAuth/1.0"
     - name: admin_token
       value: ""
     - name: user_token
@@ -44,12 +44,12 @@ request:
         };
 
         // 2. Recupera le variabili (Usa nomi esatti della Collezione)
-        const realm = bru.getEnvVar("keycloak_realm");
+        const realm = bru.getEnvVar("realm");
         const baseUrl = bru.getEnvVar("keycloak_base_url");
-        const adminEmail = bru.getEnvVar("keycloak_admin_email");
-        const adminPassword = bru.getEnvVar("keycloak_admin_password");
+        const adminEmail = bru.getEnvVar("admin_email");
+        const adminPassword = bru.getEnvVar("admin_password");
         const adminToken = bru.getVar("admin_token");
-        const clientId = bru.getEnvVar("keycloak_client_id");
+        const clientId = bru.getEnvVar("client_id");
 
         const fullUrl = `${baseUrl}/realms/${realm}/protocol/openid-connect/token`.replace(/([^:]\/)\/+/g, "$1");
         console.log("keycloack_base_url " + fullUrl);

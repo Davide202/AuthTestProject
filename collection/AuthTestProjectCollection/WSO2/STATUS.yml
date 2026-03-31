@@ -1,11 +1,11 @@
 info:
   name: STATUS
   type: http
-  seq: 2
+  seq: 3
 
 http:
   method: GET
-  url: "{{host}}/public/status"
+  url: http://localhost:8280/wso2protectedapi/1.0/public/status
   auth: inherit
 
 settings:

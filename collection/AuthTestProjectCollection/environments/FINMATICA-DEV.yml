@@ -2,21 +2,35 @@ name: FINMATICA-DEV
 variables:
   - name: keycloak_base_url
     value: http://localhost:8081
-  - name: user_email
+  - name: keycloak_user_email
     value: user1@test.local
-  - name: user_password
+  - name: keycloak_user_password
     value: User123!
-  - name: admin_email
+  - name: keycloak_admin_email
     value: admin@test.local
-  - name: admin_password
+  - name: keycloak_admin_password
     value: Admin123!
-  - name: realm
+  - name: keycloak_realm
     value: finmatica
-  - name: client_id
+  - name: keycloak_client_id
     value: postman
+  - name: keycloak_scope
+    value: openid profile email roles
   - name: wso2_base_url
     value: https://localhost:8243
   - name: wso2_client_id
-    value: ZKhi34gVqsNHMHdZzZOmz2FHSX0a
+    value: aOz7xVNmLUkiiJPw_ndXEX_mbfEa
   - name: wso2_client_password
-    value: RVATOv0hr_4Mw_8Zs7Ma5QsPuV4a
+    value: rMage5v0GMYf1he2IsrDITpJOZMa
+  - name: wso2_admin_username
+    value: testuser
+  - name: wso2_admin_password
+    value: testuser
+  - name: wso2_token_url
+    value: https://localhost:9443/oauth2/token
+  - name: wso2_scopes
+    value: openid profile email roles role groups internal_login internal_user_mgt_view
+  - name: wso2_jwt
+    value: ""
+  - name: admin_id_token
+    value: ""

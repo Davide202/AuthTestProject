@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
@@ -34,18 +35,11 @@ public class BasicAuthSecurityConfig {
 
     private final ContextFilter contextFilter;
     private final SecurityContextFilter securityContextFilter;
+    private final BasicAuthProperties properties;
+    private final UrlBasedCorsConfigurationSource corsConfigurationSource;
 
     @Value("${app.public-apis}")
     private String[] pubApisConfigured;
-
-    @Value("${app.security.basic.username}")
-    private String basicUsername;
-
-    @Value("${app.security.basic.password}")
-    private String basicPassword;
-
-    @Value("${app.security.basic.roles}")
-    private String[] basicRoles;
 
 
     @Bean
@@ -53,6 +47,7 @@ public class BasicAuthSecurityConfig {
         log.info("Public apis {}", Arrays.toString(pubApisConfigured));
         http
                 .csrf(AbstractHttpConfigurer::disable) // Spesso disabilitato per API stateless
+                .cors( cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth ->
                     auth
                     .requestMatchers(pubApisConfigured).permitAll()
@@ -67,12 +62,12 @@ public class BasicAuthSecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
 
-        String[] roles = Arrays.stream(basicRoles)
+        String[] roles = Arrays.stream(properties.getRoles())
             .map(r -> r.replace("ROLE_",""))
             .toArray(String[]::new);
         UserDetails user = User.builder()
-                .username(basicUsername)
-                .password(passwordEncoder().encode(basicPassword))
+                .username(properties.getUsername())
+                .password(passwordEncoder().encode(properties.getPassword()))
                 .roles(roles)
                 .build();
 

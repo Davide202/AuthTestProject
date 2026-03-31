@@ -6,7 +6,7 @@ server:
 spring:
   #main.allow-bean-definition-overriding: true
   application:
-    name: test
+    name: AuthTestProject
   profiles.active: ${AUTH_PROFILE:basicAuth}
   security:
     oauth2:
@@ -34,16 +34,16 @@ app:
     allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS,PATCH}
     # Headers permessi di default
     allowed-headers: ${CORS_ALLOWED_HEADERS:*}
-  security:
-    basic:
-      username: admin
-      password: password
-      roles: ADMIN
+  basic-security:
+    username: admin
+    password: password
+    roles: ADMIN
   keycloak-admin:
     server-url: ${KEYCLOAK_ADMIN_SERVER_URL:http://localhost:8081}
     realm: ${KEYCLOAK_ADMIN_REALM:finmatica}
     client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:finmatica-admin}
     client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:finmatica-admin-secret-change-in-production}
   wso2:
+    use-default-rest-template: ${USE_DEFAULT_REST_TEMPLATE:false}
     user-info: ${WSO2_USER_INFO_URI:https://localhost:9443/oauth2/userinfo}
 

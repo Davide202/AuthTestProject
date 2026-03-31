@@ -1,11 +1,11 @@
 info:
-  name: SECRET 2
+  name: STATUS
   type: http
-  seq: 6
+  seq: 2
 
 http:
   method: GET
-  url: "{{host}}/api/reports/secret"
+  url: "{{host}}/public/status"
   auth: inherit
 
 settings:

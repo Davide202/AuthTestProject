@@ -1,13 +1,19 @@
 package com.example.test.filters;
 
 import com.example.test.config.ContextWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.shaded.gson.JsonObject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.UUID;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -19,11 +25,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * This ensures all down-stream logic can access the tenant ID without
  * passing it manually.
  */
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class ContextFilter extends OncePerRequestFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(ContextFilter.class);
+    private final ObjectMapper objectMapper;
     private static final String TENANT_HEADER = "X-Tenant-Id";
     private static final String CID = "cid";
 
@@ -36,6 +43,7 @@ public class ContextFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException
     {
         MDC.put(CID,UUID.randomUUID().toString());
+        printAuthenticationHeader(request);
         String tenantHeader = request.getHeader(TENANT_HEADER);
         if (tenantHeader != null && !tenantHeader.isBlank()) {
             try {
@@ -53,6 +61,37 @@ public class ContextFilter extends OncePerRequestFilter {
         } finally {
             ContextWrapper.clear();
             log.trace("Cleared TenantContext");
+        }
+    }
+
+    private void printAuthenticationHeader(HttpServletRequest request){
+        try {
+            StringJoiner joiner = new StringJoiner(" ," );
+            request.getHeaderNames().asIterator().forEachRemaining(h -> {
+                String v = request.getHeader(h);
+                joiner.add(h + " :: " + v);
+            });
+            log.info("Headers :: {}",joiner.toString());
+            request.getHeaderNames().asIterator().forEachRemaining(h -> {
+                String v = request.getHeader(h);
+                log.info("{} :: {}",h,v);
+                if ("authorization".equalsIgnoreCase(h) && v.contains("Bearer ")){
+                    String jwt = v.replace("Bearer ","");
+                    String body = jwt.split("\\.")[1];
+                    byte[] decBody = Base64.getDecoder().decode(body.getBytes(StandardCharsets.UTF_8));
+                    String decJwt = new String(decBody,StandardCharsets.UTF_8);
+                    log.info("JWT BODY :: {}",decJwt);
+                    try {
+                        long exp = objectMapper.readTree(decJwt).findPath("exp").asLong();
+                        log.info("JWT expires at {}",new Date(exp*1000));
+                    } catch (JsonProcessingException e) {
+                        log.error(e);
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
     }
 }

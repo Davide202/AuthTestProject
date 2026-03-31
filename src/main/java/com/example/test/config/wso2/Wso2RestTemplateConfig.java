@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -12,14 +13,16 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
-@Configuration
+
+@Component
 @Profile("wso2")
 public class Wso2RestTemplateConfig {
 
-    @Bean("nosslverification")
-    public RestTemplate restTemplate() throws Exception {
+    public RestTemplate restTemplate() {
         // 1. Creiamo un TrustManager che accetta tutto
         TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
@@ -29,24 +32,29 @@ public class Wso2RestTemplateConfig {
                 }
         };
 
-        // 2. Inizializziamo il contesto SSL
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 
-        // 3. Creiamo una Factory personalizzata che FORZA l'uso del client Java base
-        //    e inietta il nostro contesto SSL bypassando eventuali librerie di Keycloak
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory() {
-            @Override
-            protected void prepareConnection(HttpURLConnection connection, String httpMethod) throws IOException {
-                if (connection instanceof HttpsURLConnection httpsConnection) {
-                    httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
-                    httpsConnection.setHostnameVerifier((hostname, session) -> true);
+        try {
+            // 2. Inizializziamo il contesto SSL
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+            // 3. Creiamo una Factory personalizzata che FORZA l'uso del client Java base
+            //    e inietta il nostro contesto SSL bypassando eventuali librerie di Keycloak
+            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory() {
+                @Override
+                protected void prepareConnection(HttpURLConnection connection, String httpMethod) throws IOException {
+                    if (connection instanceof HttpsURLConnection httpsConnection) {
+                        httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
+                        httpsConnection.setHostnameVerifier((hostname, session) -> true);
+                    }
+                    super.prepareConnection(connection, httpMethod);
                 }
-                super.prepareConnection(connection, httpMethod);
-            }
-        };
+            };
 
-        // 4. Restituiamo il nostro RestTemplate "corazzato"
-        return new RestTemplate(requestFactory);
+            // 4. Restituiamo il nostro RestTemplate "corazzato"
+            return new RestTemplate(requestFactory);
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,11 @@ import java.util.List;
 @Profile("wso2")
 @RequiredArgsConstructor
 public class Wso2JwtDecoderConfig {
+
+    private final Wso2RestTemplateConfig wso2RestTemplateConfig;
+    private final RestTemplate restTemplate;
+    @Value("${app.wso2.use-default-rest-template}")
+    private Boolean useDefaultRestTemplate;
 
     @Bean
     public JwtDecoder jwtDecoder(
@@ -56,14 +62,22 @@ public class Wso2JwtDecoderConfig {
 
     private NimbusJwtDecoder nimbusJwtDecoder(String jwkSetUri,String... allowedTypes){
         return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+                .restOperations(this.getRestTemplate())
                 .jwtProcessorCustomizer(customizer -> {
                     customizer.setJWSTypeVerifier(this.defaultJOSEObjectTypeVerifier(allowedTypes));
                 }).build();
     }
+
     private DefaultJOSEObjectTypeVerifier defaultJOSEObjectTypeVerifier(String... allowedTypes){
         List<JOSEObjectType> list = new ArrayList<>();
         for (String s : allowedTypes) list.add(new JOSEObjectType(s));
         list.add(null);
         return new DefaultJOSEObjectTypeVerifier<>(list.toArray(JOSEObjectType[]::new));
+    }
+
+    private RestTemplate getRestTemplate() {
+        if (Boolean.TRUE.equals(useDefaultRestTemplate))
+            return this.restTemplate;
+        return wso2RestTemplateConfig.restTemplate();
     }
 }
