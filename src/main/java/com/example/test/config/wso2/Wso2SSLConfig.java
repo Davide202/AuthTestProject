@@ -14,7 +14,7 @@ import java.security.cert.X509Certificate;
 
 @Log4j2
 //@Configuration
-@Profile("wso2")
+//@Profile("wso2")
 @Deprecated
 public class Wso2SSLConfig {
 

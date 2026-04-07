@@ -1,9 +1,9 @@
 package com.example.test.filters;
 
-import com.example.test.config.ContextWrapper;
+import com.example.test.context.AppContextThreadLocal;
+import com.example.test.util.SecurityContextUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.shaded.gson.JsonObject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,8 +14,6 @@ import java.util.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,11 +26,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Log4j2
 @Component
 @RequiredArgsConstructor
-public class ContextFilter extends OncePerRequestFilter {
+public class AppContextThreadLocalFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
-    private static final String TENANT_HEADER = "X-Tenant-Id";
+    //private final SecurityContextUtil securityContextUtil; NON UTILIZZARE!!!
+
     private static final String CID = "cid";
+    public static final String TENANT_HEADER = "X-Tenant-Id";
+    public static final String X_JWT_ASSERTION = "x-jwt-assertion";
+    public static final String USERNAME = "X-User-Name";
 
 
     @Override
@@ -42,24 +44,26 @@ public class ContextFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException
     {
+        if (request.getRequestURI().contains("/actuator/health")){
+            filterChain.doFilter(request, response);
+            return;
+        }
         MDC.put(CID,UUID.randomUUID().toString());
         printAuthenticationHeader(request);
+
         String tenantHeader = request.getHeader(TENANT_HEADER);
-        if (tenantHeader != null && !tenantHeader.isBlank()) {
-            try {
-                UUID tenantId = UUID.fromString(tenantHeader);
-                ContextWrapper.setTenantId(tenantId);
-                log.debug("Set TenantContext from header: {}", tenantId);
-            } catch (IllegalArgumentException e) {
-                log.warn("Invalid UUID format in X-Tenant-Id header: {}", tenantHeader);
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid X-Tenant-Id format");
-                return;
-            }
-        }
+        AppContextThreadLocal.setTenantId(tenantHeader);
+
+        String wso2header = request.getHeader(X_JWT_ASSERTION);
+        AppContextThreadLocal.setXJwtAssertion(wso2header);
+
+        String username = request.getHeader(USERNAME);
+        AppContextThreadLocal.setUsername(username);
+
         try {
             filterChain.doFilter(request, response);
         } finally {
-            ContextWrapper.clear();
+            AppContextThreadLocal.clear();
             log.trace("Cleared TenantContext");
         }
     }
@@ -74,7 +78,6 @@ public class ContextFilter extends OncePerRequestFilter {
             log.info("Headers :: {}",joiner.toString());
             request.getHeaderNames().asIterator().forEachRemaining(h -> {
                 String v = request.getHeader(h);
-                log.info("{} :: {}",h,v);
                 if ("authorization".equalsIgnoreCase(h) && v.contains("Bearer ")){
                     String jwt = v.replace("Bearer ","");
                     String body = jwt.split("\\.")[1];

@@ -1,6 +1,6 @@
 package com.example.test.config.wso2;
 
-import com.example.test.filters.ContextFilter;
+import com.example.test.filters.AppContextThreadLocalFilter;
 import com.example.test.filters.SecurityContextFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
@@ -26,15 +26,16 @@ import java.util.Arrays;
 @Log4j2
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+//@EnableMethodSecurity
 @Profile("wso2")
 @RequiredArgsConstructor
 public class Wso2JwtSecurityConfig {
 
-    private final ContextFilter contextFilter;
+    private final AppContextThreadLocalFilter appContextThreadLocalFilter;
     private final SecurityContextFilter securityContextFilter;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final UrlBasedCorsConfigurationSource corsConfigurationSource;
+    private final BearerTokenResolver bearerTokenResolver;
 
     @Value("${app.public-apis}")
     private String[] pubApisConfigured;
@@ -46,13 +47,16 @@ public class Wso2JwtSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth ->
-                        auth
-                            .requestMatchers(pubApisConfigured).permitAll()
-                            .anyRequest().authenticated()
+                    auth
+                        .requestMatchers(pubApisConfigured).permitAll()
+                        .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth ->
-                        oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
-                .addFilterBefore(contextFilter,     BearerTokenAuthenticationFilter.class)
+                .oauth2ResourceServer(oauth2 ->
+                    oauth2
+                        .bearerTokenResolver(bearerTokenResolver)
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
+                )
+                .addFilterBefore(appContextThreadLocalFilter,     BearerTokenAuthenticationFilter.class)
                 .addFilterAfter(securityContextFilter,   BearerTokenAuthenticationFilter.class)
         ;
         return http.build();

@@ -12,15 +12,13 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 @RequiredArgsConstructor
 public class KeycloakJwtAuthenticationConverterConfig {
 
-    private final KeycloakAuthoritiesConverter keycloakAuthoritiesConverter;
+    private final KeycloakAuthoritiesConverter converter;
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-
-        // Colleghiamo il nostro estrattore personalizzato
-        converter.setJwtGrantedAuthoritiesConverter(keycloakAuthoritiesConverter);
-
-        return converter;
+        var jac = new JwtAuthenticationConverter();
+        jac.setPrincipalClaimName("sub");
+        jac.setJwtGrantedAuthoritiesConverter(this.converter);
+        return jac;
     }
 }

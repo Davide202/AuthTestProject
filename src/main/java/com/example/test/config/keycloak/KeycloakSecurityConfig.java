@@ -1,7 +1,7 @@
 package com.example.test.config.keycloak;
 
 
-import com.example.test.filters.ContextFilter;
+import com.example.test.filters.AppContextThreadLocalFilter;
 import com.example.test.filters.SecurityContextFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,7 +29,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class KeycloakSecurityConfig {
 
-    private final ContextFilter contextFilter;
+    private final AppContextThreadLocalFilter appContextThreadLocalFilter;
     private final SecurityContextFilter securityContextFilter;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final UrlBasedCorsConfigurationSource corsConfigurationSource;
@@ -50,7 +50,7 @@ public class KeycloakSecurityConfig {
                 )
                 .oauth2ResourceServer(oauth ->
                         oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
-                .addFilterBefore(contextFilter, BearerTokenAuthenticationFilter.class)
+                .addFilterBefore(appContextThreadLocalFilter, BearerTokenAuthenticationFilter.class)
                 .addFilterAfter(securityContextFilter, BearerTokenAuthenticationFilter.class)
         ;
         return http.build();

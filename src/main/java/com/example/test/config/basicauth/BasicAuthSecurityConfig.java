@@ -1,6 +1,6 @@
 package com.example.test.config.basicauth;
 
-import com.example.test.filters.ContextFilter;
+import com.example.test.filters.AppContextThreadLocalFilter;
 import com.example.test.filters.SecurityContextFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,7 +33,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class BasicAuthSecurityConfig {
 
-    private final ContextFilter contextFilter;
+    private final AppContextThreadLocalFilter appContextThreadLocalFilter;
     private final SecurityContextFilter securityContextFilter;
     private final BasicAuthProperties properties;
     private final UrlBasedCorsConfigurationSource corsConfigurationSource;
@@ -53,7 +53,7 @@ public class BasicAuthSecurityConfig {
                     .requestMatchers(pubApisConfigured).permitAll()
                     .anyRequest().authenticated()
                 )
-                .addFilterBefore(contextFilter, BasicAuthenticationFilter.class)
+                .addFilterBefore(appContextThreadLocalFilter, BasicAuthenticationFilter.class)
                 .addFilterAfter(securityContextFilter, BasicAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults()); // Attiva la Basic Auth
 

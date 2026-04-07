@@ -2,14 +2,21 @@ package com.example.test.filters;
 
 
 
-import com.example.test.config.ContextWrapper;
+import com.example.test.context.AppContextScopedValue;
+import com.example.test.context.AppContextThreadLocal;
+import com.example.test.context.RequestContextDataBuilder;
+import com.example.test.util.SecurityContextUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -21,34 +28,58 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Log4j2
 @Component
+@RequiredArgsConstructor
 public class SecurityContextFilter extends OncePerRequestFilter {
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        if (securityContext != null) {
-            Authentication authentication = securityContext.getAuthentication();
-            if (authentication != null){
-                Object principal = authentication.getPrincipal();
-                if (principal != null){
-                    log.info("Authentication Principal :: {} :: {}",principal.getClass().getSimpleName(),principal.toString() );
-                    if (principal instanceof Jwt jwt) {
-                        log.info("Authentication principal subject is Jwt {}",jwt.getSubject());
-                        log.info("Authentication principal claims is Jwt {}",jwt.getClaims());
-                    }
-                }
-                //if (principal instanceof )
-                var ga = authentication.getAuthorities();
-                if (ga != null && !ga.isEmpty()){
-                    List<String> roles = ga.stream().map(GrantedAuthority::getAuthority).toList();
-                    ContextWrapper.put("roles", roles);
-                    log.info("Roles in SecurityContext: {}", roles);
-                }else{
-                    log.info("No Roles in SecurityContext");
-                }
-            }
+    private static final String CID = "cid";
+    private static final String TENANT_HEADER = "X-Tenant-Id";
+    private static final String X_JWT_ASSERTION = "x-jwt-assertion";
+    private static final String USERNAME = "X-User-Name";
+
+    private final SecurityContextUtil securityContextUtil;
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+
+        if (request.getRequestURI().contains("/actuator/health")){
+            filterChain.doFilter(request, response);
+            return;
         }
-        filterChain.doFilter(request, response);
-        // Non serve il finally qui se pulisci già tutto nel TenantFilter che sta più "in alto" nella catena
+        String cid = UUID.randomUUID().toString();
+        MDC.put(CID,cid);
+        Jwt jwt = securityContextUtil.getJwt();
+        if (jwt != null){
+            log.info("JWT Authentication principal subject [{}] claims [{}]",jwt.getSubject(),jwt.getClaims());
+        }
+        List<String> roles = securityContextUtil.extractRolesFromSecurityContext();
+        log.info("Roles in SecurityContext: {}", roles);
+
+        String tenantHeader = request.getHeader(TENANT_HEADER);
+        String wso2header = request.getHeader(X_JWT_ASSERTION);
+        String username = request.getHeader(USERNAME);
+
+
+        ScopedValue
+                .where(
+                        AppContextScopedValue.REQUEST_CONTEXT,
+                        RequestContextDataBuilder.builder()
+                                .traceId(cid)
+                                .roles(roles)
+                                .tenantId(tenantHeader)
+                                .username(username)
+                                .wso2header(wso2header)
+                                .build()
+                )
+                .run(() -> {
+                    try {
+                        filterChain.doFilter(request, response);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 }

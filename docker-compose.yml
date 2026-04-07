@@ -22,7 +22,7 @@ services:
 
   api-manager:
     image: wso2/wso2am:4.3.0
-    container_name: wso2am
+    container_name: wso2-am
     profiles:
       - "keycloak"
       - "basic"
