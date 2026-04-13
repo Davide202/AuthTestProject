@@ -132,7 +132,7 @@ services:
       PORT: 8082
       CONTEXT_PATH: /basicAuth
       AUTH_PROFILE: basicAuth
-      JAVA_OPTS: -Xms256m -Xmx512m
+      JAVA_OPTS: -Xms256m -Xmx512m --enable-preview
       APP_SECURITY_BASIC_USERNAME: myCustomAdmin
       APP_SECURITY_BASIC_PASSWORD: MySuperSecretPassword!
       APP_SECURITY_BASIC_ROLES: ADMIN,USER,WSO2_MANAGER
@@ -172,7 +172,7 @@ services:
       KEYCLOAK_ADMIN_CLIENT_SECRET: finmatica-admin-secret-change-in-production
       CLIENT_ID: postman
       TOKEN_URL: http://localhost:8081
-      JAVA_OPTS: -Xms256m -Xmx512m
+      JAVA_OPTS: -Xms256m -Xmx512m --enable-preview
     ports:
       - "8083:8083"
     networks:
@@ -203,7 +203,7 @@ services:
       JWT_JWK_SET_URI: https://api-manager:9443/oauth2/jwks
       WSO2_USER_INFO_URI: https://api-manager:9443/oauth2/userinfo
       TOKEN_URL: https://localhost:9443
-      JAVA_OPTS: -Xms256m -Xmx512m
+      JAVA_OPTS: -Xms256m -Xmx512m --enable-preview
     ports:
       - "8084:8084"
     networks:

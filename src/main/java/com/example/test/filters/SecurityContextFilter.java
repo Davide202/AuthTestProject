@@ -3,7 +3,6 @@ package com.example.test.filters;
 
 
 import com.example.test.context.AppContextScopedValue;
-import com.example.test.context.AppContextThreadLocal;
 import com.example.test.context.RequestContextDataBuilder;
 import com.example.test.util.SecurityContextUtil;
 import jakarta.servlet.FilterChain;
@@ -12,15 +11,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.slf4j.MDC;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -49,8 +42,8 @@ public class SecurityContextFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        String cid = UUID.randomUUID().toString();
-        MDC.put(CID,cid);
+        String cid = MDC.get(CID);
+
         Jwt jwt = securityContextUtil.getJwt();
         if (jwt != null){
             log.info("JWT Authentication principal subject [{}] claims [{}]",jwt.getSubject(),jwt.getClaims());

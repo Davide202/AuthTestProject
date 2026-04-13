@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 
 @Log4j2
 //@Component
+@Deprecated
 public class CustomLoggingFilter implements Filter {
 
     @Override

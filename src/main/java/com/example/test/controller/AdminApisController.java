@@ -1,4 +1,4 @@
-package com.example.test.controlloer;
+package com.example.test.controller;
 
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,26 +17,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Produces(MediaType.APPLICATION_JSON_VALUE)
 @RequestMapping("/auth")
-public class AuthenticatedApisController {
+public class AdminApisController {
+
+
+
 
 
     @Operation(summary= "Gets auth info", description= "Gets auth info")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Authentication.class)))
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = Authentication.class)))
     @GetMapping("/info")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')") //@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Authentication> authenticated(Authentication authentication) {
         return ResponseEntity.ok(authentication);
     }
 
-    @GetMapping("/hello")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<String> sayHello() {
-        return ResponseEntity.ok("Ciao Utente!");
-    }
 
-    @GetMapping("/secret")
+
+
+
+    @Operation(summary= "Api restricted to user role ADMIN", description= "")
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "text/plain",
+                    schema = @Schema(implementation = String.class)))
+    @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> saySecret() {
         return ResponseEntity.ok("Area Riservata agli Admin");
+
+
     }
 }
