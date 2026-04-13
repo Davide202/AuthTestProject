@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Produces;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,15 @@ import java.util.Map;
 @RestController
 @Produces(MediaType.APPLICATION_JSON_VALUE)
 @RequestMapping("/public")
+@Tag(name = "1. API Pubbliche", description = "Endpoint di utilità pubblica che non richiedono autenticazione")
 public class PublicApisController {
 
 
 
-    @Operation(summary= "Gets status info", description= "Gets status info")
+    @Operation(
+            summary= "Gets status info",
+            description= "Gets status info"
+    )
     @ApiResponse(responseCode = "200",
             content = @Content(
                     mediaType = "application/json",
@@ -37,7 +42,10 @@ public class PublicApisController {
 
 
 
-    @Operation(summary= "Gets auth info", description= "Gets auth info")
+    @Operation(
+            summary= "Gets auth info",
+            description= "Gets auth info"
+    )
     @ApiResponse(responseCode = "200",
             content = @Content(
                     mediaType = "application/json",

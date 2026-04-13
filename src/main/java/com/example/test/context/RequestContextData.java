@@ -8,4 +8,12 @@ public record RequestContextData(
         List<String> roles,
         String traceId,
         String wso2header
-) {}
+) {
+
+    public static RequestContextDataBuilder builder(){
+        return RequestContextDataBuilder.builder();
+    }
+
+
+
+}

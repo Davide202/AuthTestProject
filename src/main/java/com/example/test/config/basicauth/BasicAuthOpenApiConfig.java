@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import java.util.Map;
+
 
 @Configuration
 @Profile("basicAuth")
@@ -21,7 +23,12 @@ public class BasicAuthOpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("Basic Auth API").version("1.0").description("API protette da Basic Authentication"))
+                .info(new Info()
+                        .title("Basic Auth API")
+                        .version("1.0")
+                        .description("API protette da Basic Authentication")
+                        .extensions(Map.of("key","value"))
+                )
                 // Richiede l'autenticazione per tutte le API documentate
                 .addSecurityItem(new SecurityRequirement().addList(BASIC_AUTH_SCHEME))
                 .components(new Components()

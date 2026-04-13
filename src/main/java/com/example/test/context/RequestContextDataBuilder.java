@@ -1,5 +1,6 @@
 package com.example.test.context;
 
+import java.util.Collections;
 import java.util.List;
 
 public class RequestContextDataBuilder {
@@ -10,7 +11,13 @@ public class RequestContextDataBuilder {
     private String traceId;
     private String wso2header;
 
-    private RequestContextDataBuilder (){}
+    private RequestContextDataBuilder (){
+        this.username = "";
+        this.tenantId = "";
+        this.roles = Collections.emptyList();
+        this.traceId = "";
+        this.wso2header = "";
+    }
 
     public static RequestContextDataBuilder builder(){
         return new RequestContextDataBuilder();

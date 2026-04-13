@@ -1,0 +1,109 @@
+openapi: 3.1.0
+info:
+  title: Finmatica API
+  description: API protette da Keycloak
+  version: "1.0"
+servers:
+- url: http://localhost:8083/keycloak
+  description: Generated server url
+security:
+- KeycloakPasswordFlow: []
+tags:
+- name: 2. User APIs
+  description: Endpoint ristrette agli utenti con ruolo USER
+- name: 4. Wso2 Manager APIs
+  description: Endpoint ristrette agli utenti con ruolo WSO2_MANAGER
+- name: 1. API Pubbliche
+  description: Endpoint di utilità pubblica che non richiedono autenticazione
+- name: 3. Admin APIs
+  description: Endpoint ristrette agli utenti con ruolo ADMIN
+paths:
+  /public/status:
+    get:
+      tags:
+      - 1. API Pubbliche
+      summary: Gets status info
+      description: Gets status info
+      operationId: publicApis
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+  /public/info:
+    get:
+      tags:
+      - 1. API Pubbliche
+      summary: Gets auth info
+      description: Gets auth info
+      operationId: authenticated
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+  /auth/user:
+    get:
+      tags:
+      - 2. User APIs
+      summary: Api restricted to user role ROLE
+      operationId: sayHello
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /auth/info:
+    get:
+      tags:
+      - 3. Admin APIs
+      summary: Gets auth info
+      description: Gets auth info
+      operationId: authenticated_1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+  /auth/admin:
+    get:
+      tags:
+      - 3. Admin APIs
+      summary: Api restricted to user role ADMIN
+      operationId: saySecret
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/reports/secret:
+    get:
+      tags:
+      - 4. Wso2 Manager APIs
+      summary: Api restricted to user role WSO2_MANAGER
+      operationId: getSecretData
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  securitySchemes:
+    KeycloakPasswordFlow:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: http://localhost:8081/realms/finmatica/protocol/openid-connect/token
+          scopes: {}

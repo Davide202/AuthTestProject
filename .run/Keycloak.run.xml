@@ -4,6 +4,7 @@
       <env name="AUTH_PROFILE" value="keycloak" />
       <env name="CONTEXT_PATH" value="/keycloak" />
       <env name="PORT" value="8083" />
+      <env name="OPEN_API_FILE_NAME" value="openapi-keycloak-local" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="com.example.test.TestApplication" />
     <module name="AuthTestProject" />

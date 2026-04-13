@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Produces;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,15 @@ import java.util.Map;
 @RestController
 @Produces(MediaType.APPLICATION_JSON_VALUE)
 @RequestMapping("/api/reports")
+@Tag(name = "4. Wso2 Manager APIs", description = "Endpoint ristrette agli utenti con ruolo WSO2_MANAGER")
 public class Wso2ManagerController {
 
 
 
-    @Operation(summary= "Api restricted to user role WSO2_MANAGER", description= "")
+    @Operation(
+            summary= "Api restricted to user role WSO2_MANAGER",
+            description= "Empty description"
+    )
     @ApiResponse(responseCode = "200",
             content = @Content(
                     mediaType = "text/plain",
