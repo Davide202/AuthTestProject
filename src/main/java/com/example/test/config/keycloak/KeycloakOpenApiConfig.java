@@ -2,6 +2,7 @@ package com.example.test.config.keycloak;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.*;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,15 @@ public class KeycloakOpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-            .info(new Info().title("Finmatica API").version("1.0")
-                    .description("API protette da Keycloak"))
+            .info(new Info()
+                    .title("Finmatica API")
+                    .version("1.0")
+                    .description("API protette da Keycloak")
+                    .contact(new Contact()
+                            .name("Davide")
+                            .email("davide@test.com")
+                    )
+            )
             .addSecurityItem(new SecurityRequirement().addList(OAUTH_SCHEME_NAME))
             .components(new Components().addSecuritySchemes(OAUTH_SCHEME_NAME, securitySchemeOauth()));
     }

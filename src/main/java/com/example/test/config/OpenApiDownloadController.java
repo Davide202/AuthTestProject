@@ -5,8 +5,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @Hidden
 @RestController
@@ -33,5 +36,11 @@ public class OpenApiDownloadController {
     public void downloadYamlDocs(HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setHeader(CONTENT_DISPOSITION, FILE_NAME_YAML.formatted(fileName));
         request.getRequestDispatcher(apiDocsPath+".yaml").forward(request, response);
+    }
+
+
+    @GetMapping
+    public ResponseEntity<Map<String,Object>> status() {
+        return ResponseEntity.ok(Map.of("status","up"));
     }
 }

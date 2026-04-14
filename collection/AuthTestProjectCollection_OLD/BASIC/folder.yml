@@ -6,8 +6,8 @@ info:
 request:
   auth:
     type: basic
-    username: admin
-    password: password123
+    username: myCustomAdmin
+    password: MySuperSecretPassword!
   variables:
     - name: host
       value: http://localhost:8082/basicAuth

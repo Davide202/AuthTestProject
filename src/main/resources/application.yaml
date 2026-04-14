@@ -45,9 +45,9 @@ app:
     # Headers permessi di default
     allowed-headers: ${CORS_ALLOWED_HEADERS:*}
   basic-security:
-    username: admin
-    password: password
-    roles: ADMIN
+    username: myCustomAdmin
+    password: MySuperSecretPassword!
+    roles: ADMIN,USER
   keycloak-admin:
     server-url: ${KEYCLOAK_ADMIN_SERVER_URL:http://localhost:8081}
     realm: ${KEYCLOAK_ADMIN_REALM:finmatica}

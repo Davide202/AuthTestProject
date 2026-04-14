@@ -48,6 +48,10 @@ docker compose --profile basic up -d
 docker compose --profile keycloak up -d
 ```
 
+```bash
+docker compose --profile basic --profile keycloak up -d --build
+```
+
 ### 🧩 3. Profilo WSO2
 *(Avvia l'API Manager e il backend protetto da token nativi WSO2)*
 ###### Avvia lo stack WSO2 in detatched mode

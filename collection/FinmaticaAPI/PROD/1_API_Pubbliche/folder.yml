@@ -1,0 +1,7 @@
+info:
+  name: 1_API_Pubbliche
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit

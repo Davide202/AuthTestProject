@@ -1,0 +1,7 @@
+info:
+  name: 4_Wso2_Manager_APIs
+  type: folder
+  seq: 2
+
+request:
+  auth: inherit

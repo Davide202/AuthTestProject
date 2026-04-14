@@ -52,7 +52,7 @@ public class Wso2AuthoritiesConverter implements Converter<Jwt, Collection<Grant
         this.getUserInfoFromScim(jwt, authorities);
         this.addRoles(jwt.getClaims(),authorities);
 
-        return authorities;
+        return authorities.stream().distinct().toList();
     }
 
     private void addRolesFromUserInfoApi(Jwt jwt, List<GrantedAuthority> authorities) {
@@ -114,17 +114,29 @@ public class Wso2AuthoritiesConverter implements Converter<Jwt, Collection<Grant
                     }
                 }
             }
-            if (!roles.isEmpty()) {
-                for (String role : roles) {
-                    // Puliamo stringhe del tipo "Internal/subscriber" in "ROLE_SUBSCRIBER"
-                    String cleanRole = role;
-                    if (role.contains("/")) {
-                        cleanRole = role.substring(role.lastIndexOf("/") + 1);
-                    }
-                    authorities.add(new SimpleGrantedAuthority("ROLE_" + cleanRole));
+            for (String role : roles) {
+                // Puliamo stringhe del tipo "Internal/subscriber" in "ROLE_SUBSCRIBER"
+                String cleanRole = this.cleanWso2Roles(role);
+                if (cleanRole != null && ! cleanRole.isBlank()){
+                    SimpleGrantedAuthority sga = new SimpleGrantedAuthority("ROLE_" + cleanRole);
+                    authorities.add(sga);
                 }
             }
         }
+    }
+
+    private String cleanWso2Roles(String role){
+        if (role == null) return null;
+        String cleanRole;
+        if (role.contains("/")) {
+            cleanRole = role.substring(role.lastIndexOf("/") + 1);
+        }else {
+            cleanRole = role;
+        }
+        if (!cleanRole.isBlank()){
+            cleanRole = cleanRole.toUpperCase();
+        }
+        return cleanRole;
     }
 
     private RestTemplate getRestTemplate() {

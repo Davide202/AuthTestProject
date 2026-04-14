@@ -23,24 +23,6 @@ public class AdminApisController {
 
 
     @Operation(
-            summary= "Gets auth info",
-            description= "This API descripts the Authentication Context"
-    )
-    @ApiResponse(responseCode = "200",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = Authentication.class)))
-    @GetMapping("/info")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')") //@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<Authentication> authenticated(Authentication authentication) {
-        return ResponseEntity.ok(authentication);
-    }
-
-
-
-
-
-    @Operation(
             summary= "Api restricted to user role ADMIN",
             description= "Empty description"
     )
@@ -55,4 +37,24 @@ public class AdminApisController {
 
 
     }
+
+/*
+
+    @Operation(
+            summary= "Gets auth info",
+            description= "This API descripts the Authentication Context"
+    )
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = Authentication.class)))
+    @GetMapping("/info")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')") //@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<Authentication> authenticated(Authentication authentication) {
+        return ResponseEntity.ok(authentication);
+    }
+*/
+
+
+
 }

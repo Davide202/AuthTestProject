@@ -3,6 +3,7 @@ package com.example.test.config.basicauth;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -27,15 +28,25 @@ public class BasicAuthOpenApiConfig {
                         .title("Basic Auth API")
                         .version("1.0")
                         .description("API protette da Basic Authentication")
-                        .extensions(Map.of("key","value"))
+                        .contact(new Contact()
+                                .name("Davide")
+                                .email("davide@test.com")
+                        )
                 )
-                // Richiede l'autenticazione per tutte le API documentate
-                .addSecurityItem(new SecurityRequirement().addList(BASIC_AUTH_SCHEME))
+                .addSecurityItem(new SecurityRequirement()
+                        .addList(BASIC_AUTH_SCHEME)
+                )
                 .components(new Components()
-                        // Definisce lo schema di tipo HTTP Basic
-                        .addSecuritySchemes(BASIC_AUTH_SCHEME, new SecurityScheme()
-                                .name(BASIC_AUTH_SCHEME)
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("basic")));
+                        .addSecuritySchemes(
+                                BASIC_AUTH_SCHEME,
+                                new SecurityScheme()
+                                    //.name(BASIC_AUTH_SCHEME)
+                                    // Secondo le specifiche ufficiali di OpenAPI 3.0,
+                                    // l'attributo name è valido soltanto quando il tipo di sicurezza è apiKey
+                                    // (in cui il name rappresenta il nome reale dell'header o query param da cercare)
+                                    .type(SecurityScheme.Type.HTTP)
+                                    .scheme("basic")
+                        )
+                );
     }
 }

@@ -1,0 +1,4 @@
+name: Environment 2
+variables:
+  - name: baseUrl
+    value: http://localhost:8280/finmaticaapi/1.0

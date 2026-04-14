@@ -1,0 +1,29 @@
+info:
+  name: Get Admin Token
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{keycloak_base_url}}/realms/{{keycloak_realm}}/protocol/openid-connect/token"
+  body:
+    type: form-urlencoded
+    data:
+      - name: client_id
+        value: "{{keycloak_client_id}}"
+      - name: username
+        value: "{{keycloak_admin_email}}"
+      - name: password
+        value: "{{keycloak_admin_password}}"
+      - name: grant_type
+        value: password
+      - name: scope
+        value: "{{keycloak_scope}}"
+      - name: client_secret
+        value: "{{keycloak_client_secret}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

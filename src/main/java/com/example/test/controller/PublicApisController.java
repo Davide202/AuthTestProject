@@ -44,7 +44,7 @@ public class PublicApisController {
 
     @Operation(
             summary= "Gets auth info",
-            description= "Gets auth info"
+            description= "This API descripts the Authentication Context"
     )
     @ApiResponse(responseCode = "200",
             content = @Content(

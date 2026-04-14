@@ -1,5 +1,6 @@
 package com.example.test.config.wso2;
 
+import io.swagger.v3.oas.models.info.Contact;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import io.swagger.v3.oas.models.Components;
@@ -29,8 +30,15 @@ public class Wso2JwtOpenApiConfig {
         String tokenUrl = String.format("%s/oauth2/token", serverUrl);
 
         return new OpenAPI()
-                .info(new Info().title("WSO2 Protected API").version("1.0")
-                        .description("API protette da WSO2 API Manager"))
+                .info(new Info()
+                        .title("WSO2 Protected API")
+                        .version("1.0")
+                        .description("API protette da WSO2 API Manager")
+                        .contact(new Contact()
+                                .name("Davide")
+                                .email("davide@test.com")
+                        )
+                )
                 // Richiediamo che almeno uno dei due metodi (OAuth o Bearer) sia utilizzato
                 .addSecurityItem(new SecurityRequirement().addList(OAUTH_SCHEME))
                 .addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME))

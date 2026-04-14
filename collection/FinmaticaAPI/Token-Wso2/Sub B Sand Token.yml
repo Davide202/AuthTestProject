@@ -1,0 +1,23 @@
+info:
+  name: Sub B Sand Token
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{wso2_token_url}}"
+  body:
+    type: form-urlencoded
+    data:
+      - name: client_id
+        value: "{{sub_b_sand_client_id}}"
+      - name: grant_type
+        value: client_credentials
+      - name: client_secret
+        value: "{{sub_b_sand_client_secret}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

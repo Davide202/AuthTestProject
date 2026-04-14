@@ -1,0 +1,53 @@
+opencollection: 1.0.0
+
+info:
+  name: FinmaticaAPI
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  variables:
+    - name: baseUrl
+      value: http://localhost:8280/finmaticaapi/1.0
+    - name: wso2_token_url
+      value: https://localhost:9443/oauth2/token
+    - name: sub_b_username
+      value: SubscriberB
+    - name: sub_b_password
+      value: SubscriberB
+    - name: sub_b_prod_client_id
+      value: qs3CJ8cPFuXVShEgGq5uafU2ZU8a
+    - name: sub_b_prod_client_secret
+      value: 0aXGwvG36qpf1zzWnSbX5ZrunT0a
+    - name: sub_b_sand_client_id
+      value: bi5rJXRKIbXm2_W7NYz3nMBlq90a
+    - name: sub_b_sand_client_secret
+      value: bLFJaK_6uyHfHOczguNAZWGQJGMa
+  scripts:
+    - type: tests
+      code: |-
+        test("should return success", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    openapi:
+      - sourceUrl: ../../../../../WSO2/AuthTestProject/collection/swagger-keycloak.json
+        groupBy: tags
+        lastSyncDate: 2026-04-14T10:27:18.790Z
+        specHash: 96f8ed951e77e2b2962abb0ce5b71599
+        autoCheck: true
+        autoCheckInterval: 5

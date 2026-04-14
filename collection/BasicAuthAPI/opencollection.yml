@@ -1,0 +1,57 @@
+opencollection: 1.0.0
+
+info:
+  name: BasicAuthAPI
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  auth:
+    type: oauth2
+    flow: client_credentials
+    accessTokenUrl: "{{wso2_token_url}}"
+    credentials:
+      clientId: "{{sub_a_prod_client_id}}"
+      clientSecret: "{{sub_a_prod_client_secret}}"
+    tokenConfig:
+      placement:
+        header: Bearer
+      source: access_token
+    settings:
+      autoFetchToken: true
+      autoRefreshToken: false
+  variables:
+    - name: baseUrl
+      value: http://localhost:8280/basicauthapi/1.0
+    - name: wso2_token_url
+      value: https://localhost:9443/oauth2/token
+    - name: sub_a_username
+      value: SubscriberA
+    - name: sub_a_password
+      value: SubscriberA
+    - name: sub_a_prod_client_id
+      value: Rkt29WXgYHRu11836W7jmV7jMYca
+    - name: sub_a_prod_client_secret
+      value: pMPynEDVvez_WPYy2xLEFSXOAmEa
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    openapi:
+      - sourceUrl: ../../../../../WSO2/AuthTestProject/collection/swagger-basic.json
+        groupBy: tags
+        lastSyncDate: 2026-04-14T10:06:27.250Z
+        specHash: 87c9d429bc65db076d21646c521485d1
+        autoCheck: true
+        autoCheckInterval: 5

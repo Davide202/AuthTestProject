@@ -2,8 +2,10 @@ openapi: 3.1.0
 info:
   title: Basic Auth API
   description: API protette da Basic Authentication
+  contact:
+    name: Davide
+    email: davide@test.com
   version: "1.0"
-  key: value
 servers:
 - url: http://localhost:8082/basicAuth
   description: Generated server url
@@ -51,7 +53,8 @@ paths:
     get:
       tags:
       - 2. User APIs
-      summary: Api restricted to user role ROLE
+      summary: Api restricted to user role USER
+      description: This API say hello to the user
       operationId: sayHello
       responses:
         "200":
@@ -65,7 +68,7 @@ paths:
       tags:
       - 3. Admin APIs
       summary: Gets auth info
-      description: Gets auth info
+      description: This API descripts the Authentication Context
       operationId: authenticated_1
       responses:
         "200":
@@ -79,6 +82,7 @@ paths:
       tags:
       - 3. Admin APIs
       summary: Api restricted to user role ADMIN
+      description: Empty description
       operationId: saySecret
       responses:
         "200":
@@ -92,6 +96,7 @@ paths:
       tags:
       - 4. Wso2 Manager APIs
       summary: Api restricted to user role WSO2_MANAGER
+      description: Empty description
       operationId: getSecretData
       responses:
         "200":
@@ -104,5 +109,4 @@ components:
   securitySchemes:
     basicAuth:
       type: http
-      name: basicAuth
       scheme: basic

@@ -1,0 +1,23 @@
+info:
+  name: Sub B Prod Token
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{wso2_token_url}}"
+  body:
+    type: form-urlencoded
+    data:
+      - name: client_id
+        value: "{{sub_b_prod_client_id}}"
+      - name: grant_type
+        value: client_credentials
+      - name: client_secret
+        value: "{{sub_b_prod_client_secret}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

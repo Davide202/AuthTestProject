@@ -5,16 +5,16 @@ info:
 
 http:
   method: POST
-  url: "{{keycloak_base_url}}/realms/{{realm}}/protocol/openid-connect/token"
+  url: "{{keycloak_base_url}}/realms/{{keycloak_realm}}/protocol/openid-connect/token"
   body:
     type: form-urlencoded
     data:
       - name: client_id
-        value: "{{client_id}}"
+        value: "{{keycloak_client_id}}"
       - name: username
-        value: "{{user_email}}"
+        value: "{{keycloak_user_email}}"
       - name: password
-        value: "{{user_password}}"
+        value: "{{keycloak_user_password}}"
       - name: grant_type
         value: password
       - name: scope
