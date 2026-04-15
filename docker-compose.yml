@@ -35,6 +35,8 @@ services:
       - wso2_db:/home/wso2carbon/wso2am-4.3.0/repository/database
       - wso2_server:/home/wso2carbon/wso2am-4.3.0/repository/deployment/server
       - ./deployment.toml:/home/wso2carbon/wso2am-4.3.0/repository/conf/deployment.toml:ro
+      - ./security/wso2carbon.jks:/home/wso2carbon/wso2am-4.3.0/repository/resources/security/wso2carbon.jks
+      - ./security/client-truststore.jks:/home/wso2carbon/wso2am-4.3.0/repository/resources/security/client-truststore.jks
     environment:
       - JVM_MEM_OPTS=-Xms1024m -Xmx2048m
     networks:

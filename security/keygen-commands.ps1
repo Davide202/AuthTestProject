@@ -11,6 +11,8 @@ keytool -genkeypair -alias wso2carbon -keyalg RSA -keysize 2048 -validity 3650 -
 #  2. Esporta il certificato pubblico
 keytool -exportcert -alias wso2carbon -keystore wso2carbon.jks -storepass wso2carbon -file wso2carbon.pem
 
+keytool -exportcert -alias wso2carbon -keystore wso2carbon.jks -storepass wso2carbon -rfc -file wso2carbon_vero.pem
+
 #  3. Crea il Truststore (client-truststore.jks) importando il certificato
 keytool -importcert -alias wso2carbon -keystore client-truststore.jks -storepass wso2carbon -file wso2carbon.pem -noprompt -storetype JKS
 
