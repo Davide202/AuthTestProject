@@ -5,22 +5,35 @@ info:
 
 request:
   auth:
-    type: bearer
-    token: "{{user_token}}"
+    type: oauth2
+    flow: client_credentials
+    accessTokenUrl: "{{wso2_token_url}}"
+    credentials:
+      clientId: "{{sub_b_sand_client_id}}"
+      clientSecret: "{{sub_b_sand_client_secret}}"
+      placement: body
+    tokenConfig:
+      id: credentials
+      placement:
+        header: Bearer
+      source: access_token
+    settings:
+      autoFetchToken: true
+      autoRefreshToken: false
   variables:
     - name: user_token
       value: ""
   scripts:
-    - type: before-request
+    - type: after-response
       code: |-
-        const { loginWithClientCredentials } = require('./axiosutil.js');
-        const {isTokenExpired} = require('./util.js');
-
-        //var expired = isTokenExpired(bru.getVar("admin_token"));
-        if(isTokenExpired(bru.getVar("admin_token"))){
-            var fullUrl = bru.getCollectionVar("wso2_token_url");
-            var clientId = bru.getCollectionVar("sub_b_sand_client_id");
-            var clientSecret = bru.getCollectionVar("sub_b_sand_client_secret");
-            var response = await loginWithClientCredentials(fullUrl, clientId, clientSecret, "");
-            bru.setVar("user_token",response.data.access_token);
-        }
+        //const { loginWithClientCredentials } = require('./axiosutil.js');
+        //const {isTokenExpired} = require('./util.js');
+        //
+        ////var expired = isTokenExpired(bru.getVar("admin_token"));
+        //if(isTokenExpired(bru.getVar("admin_token"))){
+        //    var fullUrl = bru.getCollectionVar("wso2_token_url");
+        //    var clientId = bru.getCollectionVar("sub_b_sand_client_id");
+        //    var clientSecret = bru.getCollectionVar("sub_b_sand_client_secret");
+        //    var response = await loginWithClientCredentials(fullUrl, clientId, clientSecret, "");
+        //    bru.setVar("user_token",response.data.access_token);
+        //}

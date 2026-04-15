@@ -32,6 +32,7 @@ request:
   variables:
     - name: baseUrl
       value: http://localhost:8280/basicauthapi/1.0
+      disabled: true
     - name: wso2_token_url
       value: https://localhost:9443/oauth2/token
     - name: sub_a_username
@@ -42,6 +43,8 @@ request:
       value: Rkt29WXgYHRu11836W7jmV7jMYca
     - name: sub_a_prod_client_secret
       value: pMPynEDVvez_WPYy2xLEFSXOAmEa
+    - name: baseUrl
+      value: https://localhost:8243/basicauthapi/1.0
 bundled: false
 extensions:
   bruno:
@@ -49,7 +52,7 @@ extensions:
       - node_modules
       - .git
     openapi:
-      - sourceUrl: ../../../../../WSO2/AuthTestProject/collection/swagger-basic.json
+      - sourceUrl: ../swagger-basic.json
         groupBy: tags
         lastSyncDate: 2026-04-14T10:06:27.250Z
         specHash: 87c9d429bc65db076d21646c521485d1
