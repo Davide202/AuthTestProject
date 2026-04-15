@@ -1,12 +1,11 @@
 package com.example.test.config.wso2;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -22,7 +21,24 @@ import java.security.cert.X509Certificate;
 @Profile("wso2")
 public class Wso2RestTemplateConfig {
 
-    public RestTemplate restTemplate() {
+    private final RestTemplate restTemplate;
+    private final Boolean useDefaultRestTemplate;
+
+    private Wso2RestTemplateConfig(
+            @Value("${app.wso2.use-default-rest-template}") Boolean useDefaultRestTemplate,
+            RestTemplate restTemplate
+    ) {
+        this.useDefaultRestTemplate = useDefaultRestTemplate;
+        this.restTemplate = restTemplate;
+    }
+
+    public RestTemplate getRestTemplate() {
+        if (Boolean.TRUE.equals(useDefaultRestTemplate))
+            return this.restTemplate;
+        return this.restTemplateTrustAllCerts();
+    }
+
+    private RestTemplate restTemplateTrustAllCerts() {
         // 1. Creiamo un TrustManager che accetta tutto
         TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {

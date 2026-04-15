@@ -26,13 +26,13 @@ request:
     - name: sub_b_password
       value: SubscriberB
     - name: sub_b_prod_client_id
-      value: qs3CJ8cPFuXVShEgGq5uafU2ZU8a
+      value: 7CZ7ujU5uo2vGapxHEP7cAPvkgUa
     - name: sub_b_prod_client_secret
-      value: 0aXGwvG36qpf1zzWnSbX5ZrunT0a
+      value: vCV64ZfUH185uoEixnXctaq2IRga
     - name: sub_b_sand_client_id
-      value: bi5rJXRKIbXm2_W7NYz3nMBlq90a
+      value: nsK84fhXo3pWY2E8Rcp8WbEVEp0a
     - name: sub_b_sand_client_secret
-      value: bLFJaK_6uyHfHOczguNAZWGQJGMa
+      value: JIa6EEWu55cExH16OjVztfvxEjIa
     - name: baseUrl
       value: https://localhost:8243/finmaticaapi/1.0
   scripts:

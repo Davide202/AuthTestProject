@@ -7,7 +7,7 @@ info:
     email: davide@test.com
   version: "1.0"
 servers:
-- url: http://localhost:8083/keycloak
+- url: https://localhost:8083/keycloak
   description: Generated server url
 security:
 - KeycloakPasswordFlow: []
@@ -40,7 +40,7 @@ paths:
       tags:
       - 1. API Pubbliche
       summary: Gets auth info
-      description: Gets auth info
+      description: This API descripts the Authentication Context
       operationId: authenticated
       responses:
         "200":
@@ -61,20 +61,6 @@ paths:
           description: OK
           content:
             text/plain:
-              schema:
-                type: string
-  /auth/info:
-    get:
-      tags:
-      - 3. Admin APIs
-      summary: Gets auth info
-      description: This API descripts the Authentication Context
-      operationId: authenticated_1
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
               schema:
                 type: string
   /auth/admin:

@@ -19,16 +19,18 @@ request:
     type: oauth2
     flow: client_credentials
     accessTokenUrl: "{{wso2_token_url}}"
+    refreshTokenUrl: "{{wso2_token_url}}"
     credentials:
       clientId: "{{sub_a_prod_client_id}}"
       clientSecret: "{{sub_a_prod_client_secret}}"
     tokenConfig:
+      id: basictoken
       placement:
         header: Bearer
       source: access_token
     settings:
       autoFetchToken: true
-      autoRefreshToken: false
+      autoRefreshToken: true
   variables:
     - name: baseUrl
       value: http://localhost:8280/basicauthapi/1.0
@@ -40,9 +42,9 @@ request:
     - name: sub_a_password
       value: SubscriberA
     - name: sub_a_prod_client_id
-      value: Rkt29WXgYHRu11836W7jmV7jMYca
+      value: imdvkfOgwSmpEWl4JPMPKfq6DDYa
     - name: sub_a_prod_client_secret
-      value: pMPynEDVvez_WPYy2xLEFSXOAmEa
+      value: 8C4r0tdbxbGYU4NcYadgHcHf1foa
     - name: baseUrl
       value: https://localhost:8243/basicauthapi/1.0
 bundled: false

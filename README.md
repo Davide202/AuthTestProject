@@ -86,6 +86,11 @@ Se hai bisogno di piallare l'ambiente (es. per ricaricare da zero il realm di Ke
 docker compose down -v
 ```
 
+**🗑️ Pulisci eventuali volumi orfani (opzionale ma consigliato). Rimuoverà solo i volumi che non sono attualmente collegati a un container acceso.**
+```bash
+docker volume prune -f
+```
+
 **🗑️ Eliminazione delle Immagini**
 Se vuoi rimuovere anche le immagini (es. per forzare una build pulita dei backend Spring Boot o liberare spazio), puoi aggiungere il flag `--rmi local` per rimuovere solo le immagini compilate localmente, oppure `--rmi all` per rimuovere anche le immagini base scaricate.
 
@@ -140,5 +145,16 @@ Una volta che tutti i container sono "healthy", puoi accedere ai servizi tramite
   - *Swagger UI:* [http://localhost:8084/wso2/swagger-ui/index.html]
 
 <!-- end list -->
+
+
+```bash
+docker compose down basic-backend keycloak-backend api-manager
+```
+```bash
+docker compose up -d --build basic-backend keycloak-backend api-manager
+```
+
+
+
 
 

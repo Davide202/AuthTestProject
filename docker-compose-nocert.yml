@@ -18,13 +18,6 @@
 # docker-compose --profile basic up -d
 # docker-compose --profile keycloak up -d
 # docker-compose --profile wso2 up -d
-
-# docker compose down basic-backend keycloak-backend
-# docker compose up -d --build basic-backend keycloak-backend
-
-# docker-compose up -d --force-recreate basic-backend keycloak-backend
-
-
 services:
 
   api-manager:
@@ -138,15 +131,7 @@ services:
       api-manager:
         condition: service_healthy
     environment:
-      JAVA_OPTS: >
-        -Xms256m -Xmx512m --enable-preview
-        -Djavax.net.ssl.trustStore=/app/security/client-truststore.jks
-        -Djavax.net.ssl.trustStorePassword=wso2carbon
-      SERVER_SSL_ENABLED: "true"
-      SERVER_SSL_KEY_STORE: "file:/app/security/wso2carbon.jks"
-      SERVER_SSL_KEY_STORE_PASSWORD: "wso2carbon"
-      SERVER_SSL_KEY_STORE_TYPE: "JKS"
-      SERVER_SSL_KEY_ALIAS: "wso2carbon"
+      JAVA_OPTS: -Xms256m -Xmx512m --enable-preview
       PORT: 8082
       CONTEXT_PATH: /basicAuth
       AUTH_PROFILE: basicAuth
@@ -156,9 +141,6 @@ services:
       OPEN_API_FILE_NAME: openapi-basic
     ports:
       - "8082:8082"
-    volumes:
-      - ./security/client-truststore.jks:/app/security/client-truststore.jks:ro
-      - ./security/wso2carbon.jks:/app/security/wso2carbon.jks:ro
     networks:
       - app-net
     healthcheck:
@@ -182,15 +164,7 @@ services:
       api-manager:
         condition: service_healthy
     environment:
-      JAVA_OPTS: >
-        -Xms256m -Xmx512m --enable-preview
-        -Djavax.net.ssl.trustStore=/app/security/client-truststore.jks
-        -Djavax.net.ssl.trustStorePassword=wso2carbon
-      SERVER_SSL_ENABLED: "true"
-      SERVER_SSL_KEY_STORE: "file:/app/security/wso2carbon.jks"
-      SERVER_SSL_KEY_STORE_PASSWORD: "wso2carbon"
-      SERVER_SSL_KEY_STORE_TYPE: "JKS"
-      SERVER_SSL_KEY_ALIAS: "wso2carbon"
+      JAVA_OPTS: -Xms256m -Xmx512m --enable-preview
       PORT: 8083
       CONTEXT_PATH: /keycloak
       AUTH_PROFILE: keycloak
@@ -205,9 +179,6 @@ services:
       OPEN_API_FILE_NAME: openapi-keycloak
     ports:
       - "8083:8083"
-    volumes:
-      - ./security/client-truststore.jks:/app/security/client-truststore.jks:ro
-      - ./security/wso2carbon.jks:/app/security/wso2carbon.jks:ro
     networks:
       - app-net
     healthcheck:
@@ -229,10 +200,7 @@ services:
       api-manager:
         condition: service_healthy
     environment:
-      JAVA_OPTS: >
-        -Xms256m -Xmx512m --enable-preview
-        -Djavax.net.ssl.trustStore=/app/security/client-truststore.jks
-        -Djavax.net.ssl.trustStorePassword=wso2carbon
+      JAVA_OPTS: -Xms256m -Xmx512m --enable-preview
       PORT: 8084
       CONTEXT_PATH: /wso2
       AUTH_PROFILE: wso2
@@ -242,8 +210,6 @@ services:
       TOKEN_URL: https://localhost:9443
     ports:
       - "8084:8084"
-    volumes:
-      - ./security/client-truststore.jks:/app/security/client-truststore.jks:ro
     networks:
       - app-net
     healthcheck:

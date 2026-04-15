@@ -24,13 +24,9 @@ public class Wso2AuthoritiesConverter implements Converter<Jwt, Collection<Grant
 
 
     private final Wso2RestTemplateConfig wso2RestTemplateConfig;
-    private final RestTemplate restTemplate;
 
     @Value("${app.wso2.user-info}")
     private String userInfoUrl;
-
-    @Value("${app.wso2.use-default-rest-template}")
-    private Boolean useDefaultRestTemplate;
 
     private static final String[] ROLE_KEYS = {
             "groups",
@@ -65,7 +61,7 @@ public class Wso2AuthoritiesConverter implements Converter<Jwt, Collection<Grant
             HttpEntity<String> entity = new HttpEntity<>(headers);
             String url = userInfoUrl + "?schema=openid";
             ResponseEntity<MapWrapper> response =
-                    this.getRestTemplate().exchange(url, HttpMethod.GET, entity, MapWrapper.class);
+                    wso2RestTemplateConfig.getRestTemplate().exchange(url, HttpMethod.GET, entity, MapWrapper.class);
             MapWrapper userInfo = response.getBody();
             log.debug("---------------->> UserInfo :: {} <<----------------",response);
             this.addRoles(userInfo,authorities);
@@ -83,7 +79,7 @@ public class Wso2AuthoritiesConverter implements Converter<Jwt, Collection<Grant
         headers.setBasicAuth("admin", "admin"); // Questo genera in automatico l'header Authorization: Basic...
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<MapWrapper> response = getRestTemplate().exchange(url, HttpMethod.GET, entity, MapWrapper.class);
+            ResponseEntity<MapWrapper> response = wso2RestTemplateConfig.getRestTemplate().exchange(url, HttpMethod.GET, entity, MapWrapper.class);
             log.debug("---------------->> ScimInfo :: {} <<----------------",response);
             this.addRoles(response.getBody(),authorities);
 
@@ -139,9 +135,5 @@ public class Wso2AuthoritiesConverter implements Converter<Jwt, Collection<Grant
         return cleanRole;
     }
 
-    private RestTemplate getRestTemplate() {
-        if (Boolean.TRUE.equals(useDefaultRestTemplate))
-            return this.restTemplate;
-        return wso2RestTemplateConfig.restTemplate();
-    }
+
 }

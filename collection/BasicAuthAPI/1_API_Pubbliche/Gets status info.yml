@@ -8,7 +8,6 @@ info:
 http:
   method: GET
   url: "{{baseUrl}}/public/status"
-  auth: inherit
 
 settings:
   encodeUrl: true

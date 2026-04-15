@@ -28,9 +28,7 @@ import java.util.List;
 public class Wso2JwtDecoderConfig {
 
     private final Wso2RestTemplateConfig wso2RestTemplateConfig;
-    private final RestTemplate restTemplate;
-    @Value("${app.wso2.use-default-rest-template}")
-    private Boolean useDefaultRestTemplate;
+
 
     @Bean
     public JwtDecoder jwtDecoder(
@@ -62,7 +60,7 @@ public class Wso2JwtDecoderConfig {
 
     private NimbusJwtDecoder nimbusJwtDecoder(String jwkSetUri,String... allowedTypes){
         return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
-                .restOperations(this.getRestTemplate())
+                .restOperations(wso2RestTemplateConfig.getRestTemplate())
                 .jwtProcessorCustomizer(customizer -> {
                     customizer.setJWSTypeVerifier(this.defaultJOSEObjectTypeVerifier(allowedTypes));
                 }).build();
@@ -75,9 +73,5 @@ public class Wso2JwtDecoderConfig {
         return new DefaultJOSEObjectTypeVerifier<>(list.toArray(JOSEObjectType[]::new));
     }
 
-    private RestTemplate getRestTemplate() {
-        if (Boolean.TRUE.equals(useDefaultRestTemplate))
-            return this.restTemplate;
-        return wso2RestTemplateConfig.restTemplate();
-    }
+
 }

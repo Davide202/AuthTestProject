@@ -13,7 +13,7 @@ request:
       clientSecret: "{{sub_b_sand_client_secret}}"
       placement: body
     tokenConfig:
-      id: credentials
+      id: sandboxtoken
       placement:
         header: Bearer
       source: access_token
